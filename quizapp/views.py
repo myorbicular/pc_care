@@ -190,6 +190,10 @@ def products(request, user_name):
     elif strip_analysis == STATEMENT[3][1] and quiz_analysis == STATEMENT[3][1]:
         final_output = STATEMENT[2][1] #Normal Skin
 
+    try:
+        hydration = Hydration.objects.get(customer_id=customer_id)
+    except ObjectDoesNotExist:
+        hydration = None
     context = {
         'skin':skin,
         'strip_score': strip_score,
@@ -197,6 +201,7 @@ def products(request, user_name):
         'quiz_score': quiz_score,
         'quiz_analysis' : quiz_analysis,
         'oil_dry_analysis' : final_output,
+        'hydration' : hydration.status
     }
     return render(request, 'quizapp/products.html', context)
 
