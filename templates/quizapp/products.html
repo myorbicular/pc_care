@@ -1,0 +1,60 @@
+{% extends 'base.html' %}{% load crispy_forms_tags %}{% load static %}
+{% block content %}
+<style>
+    .table td.fit, 
+    .table th.fit {
+        white-space: nowrap;
+        width: 1%;
+    }
+    .container {
+        margin-left:10%;
+    }
+</style>
+<div class="mt-4">
+    <h3>What is personal care?</h3>
+    <table class="table table-bordered">
+        <thead class="table-primary">
+        <tr>
+            <th class="align-middle">Customer name</th>
+            <th class="align-middle">Personal Care</th>
+            <th class="align-middle">Category Name</th>
+            <th class="align-middle">Question code</th>
+            <th class="align-middle">Question name</th>
+            <th class="align-middle">Choice name</th>
+            <th class="align-middle">Marks</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for x in skin %}
+        <tr>
+            <td class="fit align-middle">{{ x.customer }}</td>
+            <td class="fit align-middle">{{ x.choice.question.category.personalcare }}</td>
+            <td class="fit align-middle">{{ x.choice.question.category }}</td>
+            <td class="fit align-middle">{{ x.choice.question.code }}</td>
+            <td class="align-middle">{{ x.choice.question }}</td>
+            <td class="fit align-middle">{{ x.choice }}</td>
+            <td class="align-middle text-right">{{ x.choice.marks }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="5" class="font-weight-bold text-right">Strip Information</td>
+            <td class="font-weight-bold text-right">Strip Analysis: {{ strip_analysis }}</td>
+            <td class="font-weight-bold text-right fit">Strip Score: {{ strip_score }}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="font-weight-bold text-right">Quiz Information</td>
+            <td class="font-weight-bold text-right">Quiz Analysis: {{ quiz_analysis }}</td>
+            <td class="font-weight-bold text-right fit">Quiz Score: {{ quiz_score }}</td>
+        </tr>
+        <tr>
+            <td colspan="7" class="font-weight-bold text-right">Oil Dry Analysis: {{ oil_dry_analysis }}</td>
+        </tr>
+         <tr>
+            <td colspan="7" class="font-weight-bold text-right">Hydration and pH: {{ oil_dry_analysis }}</td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}
