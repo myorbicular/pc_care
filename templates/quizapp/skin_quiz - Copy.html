@@ -53,7 +53,7 @@
         let preBtn = document.getElementById('btn-previous');
         let nextBtn = document.getElementById('btn-next');
         let question_elm = document.getElementById("question");
-        let choice_elm = document.getElementById("choice");
+        //let choice_elm = document.getElementById("choice");
         let option_table = document.getElementById("option_table");
         let ques_count = document.getElementById("ques_count");
         let watr_intake = document.getElementById('watr-intake');
@@ -65,7 +65,7 @@
         let e4_value;
         ans_data = [];
 
-        window.onload = () => {
+        window.onload = function () {
             show(question_count);
         };
 
@@ -124,7 +124,7 @@
                 preBtn.classList.remove('invisible');
             }
 
-            $(choice_elm).empty();
+            //$(choice_elm).empty();
             $(question_elm).empty();
             $(option_table).empty();
             ques_count.innerHTML = `Question ${count + 1} of ${questions.length}`;
@@ -133,6 +133,7 @@
             let choice_data = questions[count].choice_data;
             let choice_res;
             for (let i = 0; i < choice_data.length; i++) {
+                let choice_elm = document.getElementById("choice" + i);
                 if (questions[count].question_code == 107) {
                     watr_intake.classList.remove('d-none');
                     note.classList.remove('d-none');
@@ -147,9 +148,12 @@
                     $(option_table).append(choice_res);
                 } else {
                     choice_res = `<li class="option" id='ans-${choice_data[i].choice_id}' data-choice_id='${choice_data[i].choice_id}'>${choice_data[i].choice_text}</li>`;
-                    $(choice_elm).append(choice_res);
+                    choice_elm.innerHTML = choice_res;
+                    //$(choice_elm).append(choice_res);
                 }
             }
+            //choice_elm.appendChild(choice_res)
+            //choice_elm.innerHTML = choice_res;
             //$("#ans-127").before('<input type="text">');
             //$('<input type="text" class="form-control">' ).insertBefore("#ans-127");
             //$target.after('<input type="text" style="width: 10px">');
@@ -189,14 +193,13 @@
             //input.onchange = (e) => {}
              //let input = document.querySelector('.formtest');
             //input.onchange = (e) => {}
-            ///const input = document.querySelector('input');
+            //const input = document.querySelector('input');
             //input.addEventListener('change', updateValue);
             //https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event
             //https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onchange
-        
-            watr_intake.onchange = (e) => {
-            //$("input").change(function () {
-                //let elm = $(this);
+            
+            $("input").focusout(function () {
+                let elm = $(this);
                 elm4_value = ((elm1.value * 2.2 * 2 / 3 * 30 / 240) + (12 * 30 * elm2.value / 30 / 240));
                 elm5_value = (elm4_value - elm3.value);
                 elm6_value = (elm5_value / elm4_value * 100);
@@ -225,7 +228,7 @@
                 }
                 water_content.classList.remove('d-none')
                 water_content.innerHTML = water_info;
-            };
+            });
         }
         
         let toggleActive = () => {
