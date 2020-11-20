@@ -185,12 +185,17 @@
                 elm3.value = parseFloat(ltrs * 4.16).toFixed(1); 
             }
 
-            const input = document.querySelector('input');
+            //let input = document.querySelector('.formtest');
+            //input.onchange = (e) => {}
+             //let input = document.querySelector('.formtest');
+            //input.onchange = (e) => {}
+            //const input = document.querySelector('input');
+            //input.addEventListener('change', updateValue);
+            //https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event
+            //https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onchange
             
-            
-            input.addEventListener('change',(e) => {
-                let elm = e.target.value;
-                console.log(elm)
+            $("input").focusout(function () {
+                let elm = $(this);
                 elm4_value = ((elm1.value * 2.2 * 2 / 3 * 30 / 240) + (12 * 30 * elm2.value / 30 / 240));
                 elm5_value = (elm4_value - elm3.value);
                 elm6_value = (elm5_value / elm4_value * 100);
@@ -219,7 +224,7 @@
                 }
                 water_content.classList.remove('d-none')
                 water_content.innerHTML = water_info;
-            }
+            });
         }
         
         let toggleActive = () => {

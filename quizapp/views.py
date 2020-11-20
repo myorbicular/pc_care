@@ -72,8 +72,8 @@ def skin_quiz(request):
         else:
             return redirect('quizapp:products', user_name=customer_obj.employee_id)
     else:
-        #questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
-        questions = Question.objects.filter(code=107).order_by('code')
+        questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
+        #questions = Question.objects.filter(code=107).order_by('code')
     if primary:
         next_quiz = False
     else:
