@@ -11,11 +11,11 @@
             <div id="questions">
                 <h2 id="question"></h2>
                 <ul id="choice" class="option_group"></ul>
-                <form name="watr-intake">
+                <form name="watr-intake" id="watr-intake" class="d-none">
                     <table class="option_table" id="option_table"></table>
                     <h3 class="float-right pt-3" id="water-content"></h3>
                 </form> 
-                <p id="note" class="pt-5"></p>
+                <p id="note" class="pt-5 d-none"></p>
             </div>
         </div>
         <div class="card-footer text-muted border-info">
@@ -27,10 +27,7 @@
     <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
     <script type="application/javascript">
         let next_quiz = '{{ next_quiz }}';
-        
         //let skin_concern_data = JSON.parse("{{category_choice|escapejs}}"); 
-    
-
         let user_name = sessionStorage.getItem("user_name");
         document.querySelector("span.name").innerHTML = user_name;
 
@@ -59,6 +56,7 @@
         let choice_elm = document.getElementById("choice");
         let option_table = document.getElementById("option_table");
         let ques_count = document.getElementById("ques_count");
+        let watr_intake = document.getElementById('watr-intake');
         let water_content = document.getElementById('water-content');
         let note = document.getElementById('note');
         let e1_value;
@@ -71,8 +69,7 @@
             show(question_count);
         };
 
-
-        function previous() {
+        let previous = () => {
             question_count--;
             show(question_count);
             let option = document.querySelectorAll("li.option");
@@ -85,18 +82,18 @@
 
         }
 
-        function next() {
+        let next = () => {
             let el1 = document.getElementById('ans-125');
             let el2 = document.getElementById('ans-126');
             let el3 = document.getElementById('ans-127');
-            let el4 = document.getElementById('water-content');
+            //let el4 = document.getElementById('water-content');
             
             if(el1){
                 e1_value = el1.value,
                 e2_value = el2.value,
-                e3_value = el3.value,
-                e4_value = el4.textContent
-            };
+                e3_value = el3.value
+                //e4_value = water_content.textContent
+            }
 
             let retrieve_ans = document.querySelector("li.option.active");
             if(retrieve_ans){
@@ -109,8 +106,6 @@
             // if the question is last then redirect to final page
             if (question_count === questions.length - 1) {
                 nextBtn.classList.add('invisible');
-                sessionStorage.setItem("time", time);
-                clearInterval(mytime);
                 SaveAns(ans_data);
             } else {
                 question_count++;
@@ -118,16 +113,17 @@
             }
         }
 
-        function show(count) {
-            water_content.classList.add('invisible');
-            note.classList.add('invisible');
-            note.classList.remove('mt-5');
+        let show = (count) => {
+            watr_intake.classList.add('d-none');
+            water_content.classList.add('d-none');
+            note.classList.add('d-none');
+            nextBtn.classList.add('invisible');
             if (question_count <= 0) {
                 preBtn.classList.add('invisible');
             } else {
                 preBtn.classList.remove('invisible');
             }
-            nextBtn.classList.add('invisible');
+
             $(choice_elm).empty();
             $(question_elm).empty();
             $(option_table).empty();
@@ -138,13 +134,14 @@
             let choice_res;
             for (let i = 0; i < choice_data.length; i++) {
                 if (questions[count].question_code == 107) {
-                    note.classList.remove('invisible');
-                    note.classList.add('mt-5');
+                    watr_intake.classList.remove('d-none');
+                    note.classList.remove('d-none');
+                    //note.classList.add('mt-5');
                     note.innerHTML = "Note: As per international standards 1ltr = 4.16 glasses"
                     choice_res = `
-                                   <tr>
-                                       <td class="pt-0 pb-0" id='choice-${choice_data[i].choice_id}'>${choice_data[i].choice_text}</td>
-                                       <td width="20%" class="p-0"><input type="text" class="form-control formtest" id='ans-${choice_data[i].choice_id}' data-choice_id='${choice_data[i].choice_id}'></td>
+                                   <tr id='tr-${choice_data[i].choice_id}'>
+                                       <td class="pt-0 pb-0" id='td1-${choice_data[i].choice_id}'>${choice_data[i].choice_text}</td>
+                                       <td width="20%" class="p-0" id='td2-${choice_data[i].choice_id}'><input type="text" class="form-control formtest" id='ans-${choice_data[i].choice_id}' data-choice_id='${choice_data[i].choice_id}'></td>
                                    </tr>
                                 `;
                     $(option_table).append(choice_res);
@@ -159,15 +156,17 @@
             
 
             if(questions[count].question_code == 107){
-                //$('#choice-127').append('<input type="text" class="col-xs-2" id="water">');
-                $('#choice-127').append('&nbsp;<input type="text" style="width: 50px;margin-left: 30px;" id="water-calc"> in ltrs');
+                //$('#choice-127').append('<input type="text" class="col-xs-2" id="water">');                
+                //$('#choice-127').append('&nbsp;<p style="word-spacing: 10px;"><input type="text" style="width: 50px;margin-left: 30px;" id="water-calc">inltrs inglasses</p>');
+                //$('#choice-127').append('<span style="word-spacing: 100px;">&nbsp;<input type="text" style="width: 50px;" id="water-calc">&nbsp;inltrs inglasses</span>');
+                $('#td1-127').append('&nbsp;<input type="text" style="width: 50px;margin-left: 30px;" id="water-calc"> in ltrs');
                 watercontent();
             }else{
                 toggleActive();
             }
         } 
-
-        function watercontent(){
+        
+        let watercontent = () => {
             let elm1 = document.getElementById('ans-125');
             let elm2 = document.getElementById('ans-126');
             let elm3 = document.getElementById('ans-127');
@@ -179,14 +178,19 @@
             elm6.readOnly = true;
             let water_info;
 
-            $("#water-calc").focusout(function() { 
-                let ltrs = $(this).val();
-                //glass_val = 
+            let watre_input = document.getElementById('water-calc');
+    
+            watre_input.onchange = (e) => {
+                let ltrs = e.target.value
                 elm3.value = parseFloat(ltrs * 4.16).toFixed(1); 
-            });
+            }
+
+            const input = document.querySelector('input');
             
-            $("input").focusout(function () {
-                let elm = $(this);
+            
+            input.addEventListener('change',(e) => {
+                let elm = e.target.value;
+                console.log(elm)
                 elm4_value = ((elm1.value * 2.2 * 2 / 3 * 30 / 240) + (12 * 30 * elm2.value / 30 / 240));
                 elm5_value = (elm4_value - elm3.value);
                 elm6_value = (elm5_value / elm4_value * 100);
@@ -195,8 +199,8 @@
                 elm6.value = parseFloat(elm6_value).toFixed(1);
                 
                 if (elm1.value >= 0 && elm2.value >= 0 && elm3.value) { //if (elm.attr('id') === 'ans-127')
-                    water_content.classList.remove('invisible');
-                    note.classList.remove('invisible');
+                    watr_intake.classList.remove('d-none');
+                    note.classList.remove('d-none');
                     nextBtn.classList.remove('invisible')
                     let msg = parseFloat(elm6_value);
                     if(msg <= 0){
@@ -213,14 +217,15 @@
                     water_info = '' 
                     nextBtn.classList.add('invisible')
                 }
+                water_content.classList.remove('d-none')
                 water_content.innerHTML = water_info;
-            });
+            }
         }
-
-        function toggleActive() {
+        
+        let toggleActive = () => {
             let option = document.querySelectorAll("li.option");
             for (let i = 0; i < option.length; i++) {
-                option[i].onclick = function () {
+                option[i].onclick = () => {
                     for (let i = 0; i < option.length; i++) {
                         if (option[i].classList.contains("active")) {
                             option[i].classList.remove("active");
@@ -234,14 +239,13 @@
 
         ////////////////////////sae data/////////////
         //let SaveAns = (obj) => {
-        function SaveAns(obj) {
+        let SaveAns = (obj) => {
             let ans_json = JSON.stringify(obj);
             //let primary_concern = '{{ primary }}';
             //let skin_concerns = JSON.parse("{{category_choice|escapejs}}");
             let params = {user_choice : ans_json, user_name : user_name};
-            let url = '/quizapp/quiz_answers/';
             $.ajax({
-                url: url,
+                url: '/quizapp/quiz_answers/',
                 type: 'get',
                 contentType: 'application/json',
                 data: params,
@@ -260,7 +264,7 @@
         }
 
         ////////////////////////save water information/////////////
-        function WaterIntake() {
+        let WaterIntake = () => {
             let params = {
                 user_name : user_name,
                 weight : e1_value,
@@ -268,9 +272,8 @@
                 water_intake : e3_value,
                 status : e4_value
             };
-            let url = '/quizapp/water_info/';
             $.ajax({
-                url: url,
+                url: '/quizapp/water_info/',
                 type: 'POST',
                 data: params,
                 dataType: 'json',
