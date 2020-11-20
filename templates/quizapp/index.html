@@ -1,73 +1,25 @@
 {% extends 'base.html' %}{% load crispy_forms_tags %}{% load static %}
-{% block jumbotron %}
-    {% include 'main.html' %}
-{% endblock %}
+
 {% block content %}
-    <div>
-        <h3>What is personal care?</h3>
-        <p>
-            Personal care is a broad term used to refer to supporting with personal hygiene and toileting, along with
-            dressing and maintaining your personal appearance.
-
-            It can cover, but is not limited to:
-
-            Bathing and showering, including bed-baths
-            Applying lotions and creams as required
-            Dressing and getting ready for bed
-            Oral hygiene
-            Applying make-up, and hair care
-            Support with shaving
-            Foot care, especially if you are diabetic need to be extra vigilant with your feet
-            Helping you to the toilet, including using a commode or bed pan
-            Changing continence pads, along with cleaning intimate areas
-            Support moving position in bed, to stretch and prevent bed sores
-            Changing or maintaining a stoma or catheter bag, or other form of clinical intervention
-            In getting to know you as a person, your care plan will outline your likes and dislikes, the hygiene or
-            beauty
-            products you want to use and what – and who – you feel most comfortable with. Particular tasks, such as
-            cutting
-            nails, shaving and diabetic foot care, will always be outlined in your support plan with specific
-            instructions
-            for your carer.
-
-            Each carer is expertly trained to provide personal care in a way that is discreet and respectful of your
-            personal boundaries. They undertake extensive training where they learn the importance of enabling your
-            dignity
-            and independence at all times.
-
-            Even though carers are trained to provide all aspects of personal care, there may be some things you’d
-            prefer to
-            do for yourself. A good carer will always give you space when you want it and encourage your independence
-            wherever they can.
-        </p>
-
-        <h3>The options for personal care</h3>
-        <p>
-            Like all forms of care, support with personal care is built completely around your individual needs and
-            personal
-            routines. If you like to wash before breakfast or have a bath before going to bed, a carer will happily
-            follow
-            your schedule, letting you live the way you want.
-
-            With home care, you have the choice of having a visiting carer – someone who visits at set times of the day
-            or
-            even overnight – to provide the support you need. If you require ongoing support, it may be best to have a
-            live-in carer, living at home with you to provide 24 hour care. Read more about what live in care covers
-            here.
-
-            Many carers support with other tasks in addition to personal care. In fact, they’re also trained to
-            administer
-            medication, help those with limited mobility to move safely around the home (especially using hoists and
-            supports) and can prepare meals, complete household chores and even offer companionship, ongoing support and
-            encouragement.
-
-            Please get in touch with our team to find out more about what a carer can support with. Your local Helping
-            Hands
-            specialist can visit you at home to discuss the options and arrange the type of support you’re looking for.
-        </p>
-        <a class="btn orb-btn float-right show-form" data-url="{% url 'quizapp:create_customer' %}" data-toggle="modal"
-           data-target="#modal-quiz">Take Quiz&raquo;</a>
-
+<style>
+    /* https://www.w3schools.com/cssref/tryit.asp?filename=trycss3_background_hero */
+    html, body  { 
+        background: url("/static/images/127.jpg") no-repeat center center fixed; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+</style>
+    <h1 class="display-1 mt-3 text-center">Personal Care</h1>
+     <div>
+        <h2 class="display-4 text-center">Skin Analysis</h2>
+        <p></p>
+        <div class="text-center"> 
+           <a class="btn orb-btn show-form" data-url="{% url 'quizapp:create_customer' %}"
+            data-toggle="modal" data-target="#modal-quiz">Take Quiz&nbsp;&raquo;
+            </a> 
+        </div> 
     </div>
 
     <div id="loader"></div>
@@ -76,9 +28,8 @@
             <div class="modal-content">
                 <form method="POST" data-url="{% url 'quizapp:create_customer' %}" class="create-form">
                     {% csrf_token %}
-
                     <div class="modal-header">
-                        <h5 class="modal-title">Create Meeting</h5>
+                        <h5 class="modal-title">Create Profile</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -98,6 +49,7 @@
             </div>
         </div>
     </div>
+
     <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
 
     <script type="application/javascript">

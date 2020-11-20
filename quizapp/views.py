@@ -6,14 +6,14 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Choice, Question, PersonalCare, Category, QuizModal, Customer, Hydration
+from .models import Choice, Question, PersonalCare, Category, QuizModal, Customer, Hydration, Concerns, Products
 from .forms import CustomerForm
 from .serializers import ChoiceSerializer, QuestionSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.db.models import Q, F, Count, Sum
-
+from .score import oil_dry_anls, sen_res_anls, acne_anls, pigmentation_anls, wrinkletight_anls, product_info
 
 def index(request):
     """wellcome page"""
@@ -47,26 +47,40 @@ def create_customer(request):
 
 def skin_quiz(request):
     primary = request.GET.get('primary')
-    # category_choice_list = request.GET.getlist('checkbox')
     category_choice = request.GET.getlist('checkbox')
-    # category_choice.remove(primary)
+    user_name = request.GET.get('user_name')
+    try:
+        customer_obj = Customer.objects.get(employee_id=user_name)
+    except ObjectDoesNotExist:
+        customer_obj = None
 
+    specific_concerns = [104, 105, 106]
     if category_choice and primary:
-        questions = Question.objects.filter(category_id__in=category_choice).annotate(
+        category_data  = Category.objects.filter(pk__in=category_choice)
+        concerns_save = Concerns()
+        concerns_save.customer = customer_obj
+        concerns_save.is_primary = Category.objects.get(pk=primary)
+        concerns_save.save()
+        for x in category_data:
+            concerns_save.category.add(x)
+        
+        questions_data = Question.objects.filter(Q(category_id__in=category_choice) & ~Q(category__code__in=specific_concerns)).annotate(
             concern_sort=Case(When(category_id=primary, then=1), default=0, output_field=IntegerField()))
-        questions.order_by('-concern_sort')
+        questions_data.order_by('-concern_sort')
+        if questions_data:
+            questions = questions_data
+        else:
+            return redirect('quizapp:products', user_name=customer_obj.employee_id)
     else:
-        #questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
         questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
-        #questions.order_by('code')
-        #print(questions.values('code'))
     if primary:
         next_quiz = False
     else:
         next_quiz = True
     context = {
         'questions': questions,
-        'next_quiz' : next_quiz
+        'next_quiz' : next_quiz,
+        'primary' : primary
     }
     return render(request, 'quizapp/skin_quiz.html', context)
 
@@ -91,11 +105,10 @@ def quiz_answers(request):
     except ObjectDoesNotExist:
         customer_obj = None
 
-    res = json.loads(user_choice)
-    print(res)
+    choice_data = json.loads(user_choice)
 
-    if res:
-        for x in res:
+    if choice_data:
+        for x in choice_data:
             try:
                 choice_obj = Choice.objects.get(pk=x)
                 quiz_save = QuizModal()
@@ -104,106 +117,11 @@ def quiz_answers(request):
                 quiz_save.save()
             except ObjectDoesNotExist:
                 pass
-                #choice_obj = get_object_or_404(Choice, pk=x)
+                #choice_obj = get_object_or_404(Choice, pk=x) 
     data = {
         'saved': True
     }
     return JsonResponse(data, safe=False)
-
-
-STATEMENT  = [
-    ("1", "Oily Skin"),
-    ("2", "Combination Skin (Slightly Oily)"),
-    ("3", "Normal Skin"),
-    ("4", "Dry Skin")
-]
-
-def quality(q):
-    for k,v in STATEMENT:
-        if v == q:
-            return q
-
-
-def products(request, user_name):
-    """return products information as per username"""
-    try:
-        customer_id = Customer.objects.get(employee_id=user_name)
-    except ObjectDoesNotExist:
-        customer_id = None
-    #CustomUser.objects.filter(username__in=created_by).values_list('email', flat=True)
-    skin = QuizModal.objects.filter(Q(choice__question__category__code=100) & Q(customer=customer_id))
-    strip_score = skin.filter(choice__question__code__in=[100,101]).aggregate(Sum('choice__marks'))['choice__marks__sum'] or 0.00
-    strip_analysis = ''
-    if strip_score:
-        if 7 <= strip_score <= 8:
-            strip_analysis = STATEMENT[0][1]
-        elif 5 <= strip_score <= 6:
-            strip_analysis = STATEMENT[1][1]
-        elif 3 <= strip_score <= 4:
-            strip_analysis = STATEMENT[2][1]
-        elif 1 <= strip_score <= 2:
-            strip_analysis = STATEMENT[3][1]
-    
-    quiz_score = skin.filter(~Q(choice__question__code__in=[100,101])).aggregate(Sum('choice__marks'))['choice__marks__sum'] or 0.00
-    quiz_analysis = ''
-    if quiz_score:
-        if 16 <= quiz_score <= 20:
-            quiz_analysis = STATEMENT[0][1]
-        elif 12 <= quiz_score <= 15:
-            quiz_analysis = STATEMENT[1][1]
-        elif 8 <= quiz_score <= 11:
-            quiz_analysis = STATEMENT[2][1]
-        elif 5 <= quiz_score <= 7:
-            quiz_analysis = STATEMENT[3][1]
-
-    if strip_analysis == quiz_analysis:
-        final_output = strip_analysis
-    #Oily Skin
-    elif strip_analysis == STATEMENT[0][1] and quiz_analysis == STATEMENT[1][1]:
-        final_output = STATEMENT[0][1] #Oily Skin
-    elif strip_analysis == STATEMENT[0][1] and quiz_analysis == STATEMENT[2][1]:
-        final_output = STATEMENT[2][1] #Normal Skin
-    elif strip_analysis == STATEMENT[0][1] and quiz_analysis == STATEMENT[3][1]:
-        final_output = STATEMENT[3][1]
-    
-    #Combination Skin
-    elif strip_analysis == STATEMENT[1][1] and quiz_analysis == STATEMENT[0][1]:
-        final_output = STATEMENT[1][1] #Combination Skin
-    elif strip_analysis == STATEMENT[1][1] and quiz_analysis == STATEMENT[2][1]:
-        final_output = STATEMENT[1][1] #Combination Skin
-    elif strip_analysis == STATEMENT[1][1] and quiz_analysis == STATEMENT[3][1]:
-        final_output = STATEMENT[3][1] #Dry Skin
-    
-     #Normal Skin
-    elif strip_analysis == STATEMENT[2][1] and quiz_analysis == STATEMENT[0][1]:
-        final_output = STATEMENT[2][1] #Normal Skin
-    elif strip_analysis == STATEMENT[2][1] and quiz_analysis == STATEMENT[1][1]:
-        final_output = STATEMENT[1][1] #Combination Skin
-    elif strip_analysis == STATEMENT[2][1] and quiz_analysis == STATEMENT[3][1]:
-        final_output = STATEMENT[2][1] #Normal Skin
-    
-    #Dry Skin
-    elif strip_analysis == STATEMENT[3][1] and quiz_analysis == STATEMENT[0][1]:
-        final_output = STATEMENT[3][1] #Dry Skin
-    elif strip_analysis == STATEMENT[3][1] and quiz_analysis == STATEMENT[1][1]:
-        final_output = STATEMENT[3][1] #Dry Skin
-    elif strip_analysis == STATEMENT[3][1] and quiz_analysis == STATEMENT[3][1]:
-        final_output = STATEMENT[2][1] #Normal Skin
-
-    try:
-        hydration = Hydration.objects.get(customer_id=customer_id)
-    except ObjectDoesNotExist:
-        hydration = None
-    context = {
-        'skin':skin,
-        'strip_score': strip_score,
-        'strip_analysis' : strip_analysis,
-        'quiz_score': quiz_score,
-        'quiz_analysis' : quiz_analysis,
-        'oil_dry_analysis' : final_output,
-        'hydration' : hydration.status
-    }
-    return render(request, 'quizapp/products.html', context)
 
 
 @api_view(['GET'])
@@ -238,3 +156,29 @@ def water_info(request):
         else:
            data['is_valid'] = False
     return JsonResponse(data, safe=False)
+
+def products(request, user_name):
+    """return products information as per username"""
+    try:
+        customer_id = Customer.objects.get(employee_id=user_name)
+    except ObjectDoesNotExist:
+        customer_id = None
+    oil_dry_ctx = oil_dry_anls(customer_id)
+    sen_res_ctx = sen_res_anls(customer_id)
+    acne_anls_ctx = acne_anls(customer_id)
+    pigmentation_anls_ctx = pigmentation_anls(customer_id)
+    wrinkletight_anls_ctx = wrinkletight_anls(customer_id)
+    concerns_data = Concerns.objects.get(customer=customer_id)
+    product_data = product_info(customer_id, oil_dry_ctx, sen_res_ctx, acne_anls_ctx)
+
+    context = {
+        'oil_dry_ctx' : oil_dry_ctx,
+        'sen_res_ctx' : sen_res_ctx,
+        'acne_anls_ctx' : acne_anls_ctx,
+        'pigmentation_anls_ctx' : pigmentation_anls_ctx,
+        'wrinkletight_anls_ctx' : wrinkletight_anls_ctx,
+        'concerns' : concerns_data,
+        'test': customer_id,
+        'pro_obj' : product_data
+    }
+    return render(request, 'quizapp/products.html', context)

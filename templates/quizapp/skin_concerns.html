@@ -19,14 +19,16 @@
         }
     </style>
 
-    <div class="pricing-header px-3 py-3 pt-md-3 pb-md-0 mx-auto text-center">
-        <h1 class="display-4">{{ pc_data.name }}</h1>
-        <p class="lead">Quickly build an effective pricing table for your potential customers with this Bootstrap
-            example. It?s built with default Bootstrap components and utilities with little customization.</p>
-    </div>
-    <hr class="border-info mb-0">
-
-    <div class="card-deck mb-4 text-center">
+<div class="card mt-4 shadow-sm border-info card-size">
+    <div class="card-body border-info">
+        <div class="pricing-header px-3 py-3 pt-md-3 pb-md-0 mx-auto text-center">
+            <h1 class="display-4">{{ pc_data.name }}</h1>
+            <p class="lead">
+                Please Select your skin concerns (Min: 1 & Max: 3)
+            </p>
+        </div>
+        <hr class="border-info mb-0">
+        <div class="card-deck mb-4 text-center">
         {% for x in category %}
             <div class="card mt-4 shadow-sm border-info card-size" id="cat-card">
                 <div class="card-header border-info">
@@ -44,25 +46,23 @@
     </div>
     <a class="btn btn-outline-info" href="{% url 'quizapp:index' %}">Back</a>
     <a class="btn orb-btn float-right invisible concerns" id="concernsBtn">Concerns&raquo;</a>
-
-    <hr class="border-info mb-1">
+</div>
 
 
     <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="modal-quiz"
          aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="get" action="{% url 'quizapp:skin_quiz' %}">
+                <form method="get" action="{% url 'quizapp:skin_quiz' %}" name="concern_form">
+                <input name="user_name" type="text" hidden>
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Primary Concerns</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Please select skin concern you would like to address first.</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="card-deck mb-4 text-center" id="card-load">
-
-                        </div>
+                        <div class="card-deck mb-4 text-center" id="card-load"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -75,6 +75,9 @@
 
     <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
     <script type="application/javascript">
+        let user_name = sessionStorage.getItem("user_name");
+        document.concern_form.user_name.value = user_name;
+
         $(document).ready(function () {
             var concernsBtn = $("#concernsBtn");
             var values = [];

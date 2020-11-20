@@ -1,47 +1,36 @@
 {% extends 'base.html' %}{% load crispy_forms_tags %}{% load static %}
 {% block content %}
-
-    <style>
-        body {
-            background-color: #0c499c;
-        }
-    </style>
-
-    <div class="mt-5">
-        <div class="quiz">
-            <div class="quiz_header">
-                <div class="quiz_user">
-                    <h4>Welcome!
-                        <span class="name"></span>
-                        <span id="ques_count" style="margin-left: 80px"></span>
-                    </h4>
-                </div>
-                <div class="quiz_timer">
-                    <span class="time">00:00</span>
-                </div>
+    <div class="card mt-4 shadow-sm border-info card-size">
+        <div class="card-header border-info">
+            <h3 class="my-0 font-weight-normal">Welcome!
+                <span class="name"></span>
+                <span id="ques_count" style="margin-left: 30%;" class=""></span>
+            </h3>
+        </div>
+        <div class="card-body border-info quiz_body">
+            <div id="questions">
+                <h2 id="question"></h2>
+                <ul id="choice" class="option_group"></ul>
+                <form name="watr-intake">
+                    <table class="option_table" id="option_table"></table>
+                    <h3 class="float-right pt-3" id="water-content"></h3>
+                </form> 
+                <p id="note" class="pt-5"></p>
             </div>
-            <div class="quiz_body">
-                <div id="questions">
-                    <h2 id="question"></h2>
-                    <ul id="choice" class="option_group"></ul>
-                    <form name="watr-intake">
-                        <table class="option_table" id="option_table"></table>
-                        <h3 class="float-right pt-3" id="water-content"></h3>
-                    </form> 
-                </div>
-                <p id="note" class="mt-5 mb-4"></p>
-                <a id="btn-previous" class="btn-next invisible" href="#" onclick="previous()">Previous</a>
-                <a id="btn-next" class="btn-next float-right invisible" href="#" onclick="next()">Next Question</a>
-            </div>
-            
+        </div>
+        <div class="card-footer text-muted border-info">
+            <a id="btn-previous" class="btn btn-primary orb-btn invisible" href="#" onclick="previous()">Previous</a>
+            <a id="btn-next" class="btn btn-primary orb-btn float-right invisible" href="#" onclick="next()">Next Question</a>
         </div>
     </div>
 
-
     <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
     <script type="application/javascript">
-        let next_quiz = '{{ next_quiz }}'
+        let next_quiz = '{{ next_quiz }}';
         
+        //let skin_concern_data = JSON.parse("{{category_choice|escapejs}}"); 
+    
+
         let user_name = sessionStorage.getItem("user_name");
         document.querySelector("span.name").innerHTML = user_name;
 
@@ -132,6 +121,7 @@
         function show(count) {
             water_content.classList.add('invisible');
             note.classList.add('invisible');
+            note.classList.remove('mt-5');
             if (question_count <= 0) {
                 preBtn.classList.add('invisible');
             } else {
@@ -142,15 +132,18 @@
             $(question_elm).empty();
             $(option_table).empty();
             ques_count.innerHTML = `Question ${count + 1} of ${questions.length}`;
-            let question_res = `<h2>Q${count + 1}. ${questions[count].question}</h2>`;
+            let question_res = `<h3>Q${count + 1}. ${questions[count].question}</h3>`;
             $(question_elm).append(question_res);
             let choice_data = questions[count].choice_data;
             let choice_res;
             for (let i = 0; i < choice_data.length; i++) {
                 if (questions[count].question_code == 107) {
+                    note.classList.remove('invisible');
+                    note.classList.add('mt-5');
+                    note.innerHTML = "Note: As per international standards 1ltr = 4.16 glasses"
                     choice_res = `
                                    <tr>
-                                       <td class="pt-0 pb-0">${choice_data[i].choice_text}</td>
+                                       <td class="pt-0 pb-0" id='choice-${choice_data[i].choice_id}'>${choice_data[i].choice_text}</td>
                                        <td width="20%" class="p-0"><input type="text" class="form-control formtest" id='ans-${choice_data[i].choice_id}' data-choice_id='${choice_data[i].choice_id}'></td>
                                    </tr>
                                 `;
@@ -160,15 +153,21 @@
                     $(choice_elm).append(choice_res);
                 }
             }
+            //$("#ans-127").before('<input type="text">');
+            //$('<input type="text" class="form-control">' ).insertBefore("#ans-127");
+            //$target.after('<input type="text" style="width: 10px">');
+            
+
             if(questions[count].question_code == 107){
+                //$('#choice-127').append('<input type="text" class="col-xs-2" id="water">');
+                $('#choice-127').append('&nbsp;<input type="text" style="width: 50px;margin-left: 30px;" id="water-calc"> in ltrs');
                 watercontent();
             }else{
                 toggleActive();
             }
-        }
+        } 
 
         function watercontent(){
-            note.innerHTML = "Note: As per international standards 1ltr = 4.16 glasses"
             let elm1 = document.getElementById('ans-125');
             let elm2 = document.getElementById('ans-126');
             let elm3 = document.getElementById('ans-127');
@@ -179,6 +178,12 @@
             elm5.readOnly = true;
             elm6.readOnly = true;
             let water_info;
+
+            $("#water-calc").focusout(function() { 
+                let ltrs = $(this).val();
+                //glass_val = 
+                elm3.value = parseFloat(ltrs * 4.16).toFixed(1); 
+            });
             
             $("input").focusout(function () {
                 let elm = $(this);
@@ -227,32 +232,13 @@
             }
         }
 
-
-        ///////////////time///////
-        let dt = new Date(new Date().setTime(0));
-        let ctime = dt.getTime();
-        let seconds = Math.floor((ctime % (1000 * 60)) / 1000);
-        let minutes = Math.floor((ctime % (1000 * 60 * 60)) / (1000 * 60));
-        //console.log(seconds, minutes);
-        let time = 0;
-        let mytime = setInterval(function () {
-            time++;
-
-            if (seconds < 59) {
-                seconds++;
-            } else {
-                seconds = 0;
-                minutes++;
-            }
-            let formatted_sec = seconds < 10 ? `0${seconds}` : `${seconds}`;
-            let formatted_min = minutes < 10 ? `0${minutes}` : `${minutes}`;
-            document.querySelector("span.time").innerHTML = `${formatted_min} : ${formatted_sec}`;
-        }, 1000);
         ////////////////////////sae data/////////////
         //let SaveAns = (obj) => {
         function SaveAns(obj) {
-            let json = JSON.stringify(obj);
-            let params = {user_choice: json, user_name: user_name};
+            let ans_json = JSON.stringify(obj);
+            //let primary_concern = '{{ primary }}';
+            //let skin_concerns = JSON.parse("{{category_choice|escapejs}}");
+            let params = {user_choice : ans_json, user_name : user_name};
             let url = '/quizapp/quiz_answers/';
             $.ajax({
                 url: url,

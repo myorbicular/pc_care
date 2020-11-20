@@ -1,6 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-from .models import Choice, Question, Category, PersonalCare, QuizModal, Customer, Hydration
+from .models import (Choice, Question, Category, PersonalCare,
+QuizModal, Customer, Hydration, Concerns, Products)
 
 """
 @admin.register(Choice)
@@ -48,7 +49,7 @@ class CategoryAdmin(ImportExportModelAdmin):
     list_display = ('id', 'code', 'name', 'personalcare')
     list_filter = ['name']
     search_fields = ['personalcare']
-    list_display_links = ['name']
+    list_display_links = ['code', 'name']
     ordering = ('code',)
 
 
@@ -93,3 +94,19 @@ class HydrationAdmin(ImportExportModelAdmin):
     list_filter = ['customer', 'status']
     list_display_links = ['customer', 'status']
     search_fields =  ['customer', 'status']
+
+
+@admin.register(Concerns)
+class ConcernsAdmin(ImportExportModelAdmin):
+    list_display = ('id', 'customer', 'is_primary')
+    list_filter = ['customer']
+    list_display_links = ['customer']
+    search_fields =  ['customer']
+
+
+@admin.register(Products)
+class ProductsAdmin(ImportExportModelAdmin):
+    list_display = ('code', 'title', 'cleanser', 'moisturizer', 'serum')
+    list_filter = ['title']
+    list_display_links = ['code', 'title']
+    search_fields = ['code', 'title', 'cleanser', 'moisturizer', 'serum']

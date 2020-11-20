@@ -6,6 +6,7 @@
 
 body {
     font-family: "Lato";
+    background-color: #f8aba7;
 }
 
 .wrapper {
@@ -113,7 +114,7 @@ body {
 
 .option {
     display: block;
-    width: 300px;
+    width: 350px;
     background-color: #fff;
     margin-bottom: 20px;
     padding: 15px 20px;
@@ -136,10 +137,10 @@ body {
 
 .btn-next {
     border: none;
-    padding: 15px 35px;
+    padding: 10px 35px;
     background-color: #0c499c;
     color: #fff;
-    border-radius: 27px;
+    border-radius: 20px;
     transition: 0.4s all;
 }
 
