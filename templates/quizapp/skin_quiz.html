@@ -1,18 +1,17 @@
 {% extends 'base.html' %}{% load crispy_forms_tags %}{% load static %}
 {% block content %}
-    <div class="card mt-4 shadow-sm border-info card-size">
+    <div class="card mt-4 shadow-sm border-info" style="width: 50rem;">
         <div class="card-header border-info">
-            <h3 class="my-0 font-weight-normal">Welcome!
+            <h4 class="my-0 font-weight-normal">Welcome!
                 <span class="name"></span>
-                <span id="ques_count" style="margin-left: 30%;" class=""></span>
-            </h3>
+                <span id="ques_count" style="margin-left: 15%;"></span>
+            </h4>
         </div>
         <div class="card-body border-info quiz_body">
             <div id="questions">
-                <h2 id="question"></h2>
-                <ul id="choice" class="option_group"></ul>
-                <form name="watr-intake" id="watr-intake" class="d-none">
-                    <table class="option_table" id="option_table"></table>
+                <h3 id="question"></h3>
+                <form name="watr-intake" id="watr-intake" class="option_group">
+                    <table class="option_table"><tbody id="option_table"></tbody></table>
                     <h3 class="float-right pt-3" id="water-content"></h3>
                 </form> 
                 <p id="note" class="pt-5 d-none"></p>
@@ -27,7 +26,6 @@
     <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
     <script type="application/javascript">
         let next_quiz = '{{ next_quiz }}';
-        //let skin_concern_data = JSON.parse("{{category_choice|escapejs}}"); 
         let user_name = sessionStorage.getItem("user_name");
         document.querySelector("span.name").innerHTML = user_name;
 
@@ -49,57 +47,37 @@
             {% endfor %}
         ];
         let question_count = 0;
-        let points = 0;
         let preBtn = document.getElementById('btn-previous');
         let nextBtn = document.getElementById('btn-next');
         let question_elm = document.getElementById("question");
-        let choice_elm = document.getElementById("choice");
         let option_table = document.getElementById("option_table");
         let ques_count = document.getElementById("ques_count");
         let watr_intake = document.getElementById('watr-intake');
         let water_content = document.getElementById('water-content');
         let note = document.getElementById('note');
-        let e1_value;
-        let e2_value;
-        let e3_value;
-        let e4_value;
+        let e1_value, e2_value, e3_value, e4_value, water_val;
         ans_data = [];
-
+        water_msg = ['Hydrated', 'Dehydrated', 'Slightly Dehydrated']
         window.onload = () => {
             show(question_count);
         };
 
         let previous = () => {
             question_count--;
-            show(question_count);
-            let option = document.querySelectorAll("li.option");
-            let ans_option = `ans-${ans_data[question_count]}`;
-            let ans_option_elm = document.getElementById(ans_option);
+            show(question_count);  
+            
+            let option = document.querySelectorAll("td.option");
+            let ans_option_elm = document.getElementById(ans_data[question_count]);
 
             if (ans_option_elm) {
                 ans_option_elm.classList.add("active");
             }
-
         }
 
         let next = () => {
-            let el1 = document.getElementById('ans-125');
-            let el2 = document.getElementById('ans-126');
-            let el3 = document.getElementById('ans-127');
-            //let el4 = document.getElementById('water-content');
-            
-            if(el1){
-                e1_value = el1.value,
-                e2_value = el2.value,
-                e3_value = el3.value
-                //e4_value = water_content.textContent
-            }
-
-            let retrieve_ans = document.querySelector("li.option.active");
+            let retrieve_ans = document.querySelector("td.option.active");
             if(retrieve_ans){
-                ans_data[question_count] = retrieve_ans.dataset.choice_id;
-                //retrieve_ans.getAttribute('data-choice_id')
-                //ans_data.push(answer_data);
+                ans_data[question_count] = retrieve_ans.id;
             }else{
                 ans_data[question_count] = 0;
             }
@@ -114,7 +92,6 @@
         }
 
         let show = (count) => {
-            watr_intake.classList.add('d-none');
             water_content.classList.add('d-none');
             note.classList.add('d-none');
             nextBtn.classList.add('invisible');
@@ -124,100 +101,92 @@
                 preBtn.classList.remove('invisible');
             }
 
-            $(choice_elm).empty();
-            $(question_elm).empty();
-            $(option_table).empty();
             ques_count.innerHTML = `Question ${count + 1} of ${questions.length}`;
-            let question_res = `<h3>Q${count + 1}. ${questions[count].question}</h3>`;
-            $(question_elm).append(question_res);
+            question_elm.innerHTML = `Q${count + 1}.${questions[count].question}`;
             let choice_data = questions[count].choice_data;
-            let choice_res;
-            for (let i = 0; i < choice_data.length; i++) {
-                if (questions[count].question_code == 107) {
-                    watr_intake.classList.remove('d-none');
-                    note.classList.remove('d-none');
-                    //note.classList.add('mt-5');
-                    note.innerHTML = "Note: As per international standards 1ltr = 4.16 glasses"
-                    choice_res = `
-                                   <tr id='tr-${choice_data[i].choice_id}'>
-                                       <td class="pt-0 pb-0" id='td1-${choice_data[i].choice_id}'>${choice_data[i].choice_text}</td>
-                                       <td width="20%" class="p-0" id='td2-${choice_data[i].choice_id}'><input type="text" class="form-control formtest" id='ans-${choice_data[i].choice_id}' data-choice_id='${choice_data[i].choice_id}'></td>
-                                   </tr>
-                                `;
-                    $(option_table).append(choice_res);
-                } else {
-                    choice_res = `<li class="option" id='ans-${choice_data[i].choice_id}' data-choice_id='${choice_data[i].choice_id}'>${choice_data[i].choice_text}</li>`;
-                    $(choice_elm).append(choice_res);
-                }
-            }
-            //$("#ans-127").before('<input type="text">');
-            //$('<input type="text" class="form-control">' ).insertBefore("#ans-127");
-            //$target.after('<input type="text" style="width: 10px">');
-            
 
-            if(questions[count].question_code == 107){
-                //$('#choice-127').append('<input type="text" class="col-xs-2" id="water">');                
-                //$('#choice-127').append('&nbsp;<p style="word-spacing: 10px;"><input type="text" style="width: 50px;margin-left: 30px;" id="water-calc">inltrs inglasses</p>');
-                //$('#choice-127').append('<span style="word-spacing: 100px;">&nbsp;<input type="text" style="width: 50px;" id="water-calc">&nbsp;inltrs inglasses</span>');
-                $('#td1-127').append('&nbsp;<input type="text" style="width: 50px;margin-left: 30px;" id="water-calc"> in ltrs');
+            if (questions[count].question_code == 107) {
+                note.classList.remove('d-none');
+                note.innerHTML = "Note: As per international standards 1ltr = 4.16 glasses"
+                option_table.innerHTML = choice_data.map(choice => `<tr>
+                                    <td class='pt-0 pb-0' id='td1-${choice.choice_id}'>${choice.choice_text}</td>
+                                    <td width='20%' class='p-0'><input type='text' class='form-control formtest' id='${choice.choice_id}'></td>
+                                    </tr>`).join("");
+                let water_ltrs = document.querySelector("tr:nth-child(3) td:first-child")
+                water_ltrs.insertAdjacentHTML("beforeend", '&nbsp;<input type="text" style="width: 50px;margin-left: 30px;" id="water-calc"> in ltrs');
                 watercontent();
-            }else{
+            } else {
+                option_table.innerHTML = choice_data.map(choice => `<tr><td class='option' id='${choice.choice_id}'>${choice.choice_text}</td></tr>`).join("");
                 toggleActive();
             }
         } 
         
         let watercontent = () => {
-            let elm1 = document.getElementById('ans-125');
-            let elm2 = document.getElementById('ans-126');
-            let elm3 = document.getElementById('ans-127');
-            let elm4 = document.getElementById('ans-128');
-            let elm5 = document.getElementById('ans-129');
-            let elm6 = document.getElementById('ans-130');
+            let elm1 = watr_intake.elements[0];
+            let elm2 = watr_intake.elements[1];
+            let elm3 = watr_intake.elements[3];
+            let elm4 = watr_intake.elements[4];
+            let elm5 = watr_intake.elements[5];
+            let elm6 = watr_intake.elements[6];
+
             elm4.readOnly = true;
             elm5.readOnly = true;
             elm6.readOnly = true;
             let water_info;
 
-            let watre_input = document.getElementById('water-calc');
+            let water_input = document.getElementById('water-calc');
     
-            watre_input.onchange = (e) => {
+            water_input.onchange = (e) => {
                 let ltrs = e.target.value
                 elm3.value = parseFloat(ltrs * 4.16).toFixed(1); 
+                water_val = ltrs;
             }
 
-            //let input = document.querySelector('.formtest');
-            //input.onchange = (e) => {}
-             //let input = document.querySelector('.formtest');
-            //input.onchange = (e) => {}
-            ///const input = document.querySelector('input');
-            //input.addEventListener('change', updateValue);
-            //https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event
-            //https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onchange
-        
-            watr_intake.onchange = (e) => {
-            //$("input").change(function () {
-                //let elm = $(this);
+            if(e1_value){
+                elm1.value = e1_value;
+                elm2.value = e2_value;
+                elm3.value = e3_value;
+                elm4.value = e4_value;
+                water_input.value = water_val;
+                water_input.focus();
+                
+                setTimeout(()=> {
+                    elm3.focus();
+                }, 200);
+            }
+
+            watr_intake.addEventListener("change", water_calc);    
+            water_input.addEventListener("focusout", water_calc);    
+            //watr_intake.onchange = () => { 
+            
+            function water_calc(){
+                //console.log(e.path[0])
+                elm3.focusout = () => {
+                    e1_value = elm1.value;
+                    e2_value = elm2.value;
+                    e3_value = elm3.value;
+                    e4_value = elm4.value;
+                }
+            
                 elm4_value = ((elm1.value * 2.2 * 2 / 3 * 30 / 240) + (12 * 30 * elm2.value / 30 / 240));
                 elm5_value = (elm4_value - elm3.value);
                 elm6_value = (elm5_value / elm4_value * 100);
                 elm4.value = parseFloat(elm4_value).toFixed(1);
                 elm5.value = parseFloat(elm5_value).toFixed(1);
                 elm6.value = parseFloat(elm6_value).toFixed(1);
-                
-                if (elm1.value >= 0 && elm2.value >= 0 && elm3.value) { //if (elm.attr('id') === 'ans-127')
-                    watr_intake.classList.remove('d-none');
+                                
+                if (elm1.value >= 0 && elm2.value >= 0 && elm3.value) {
+                    //watr_intake.classList.remove('d-none');
                     note.classList.remove('d-none');
                     nextBtn.classList.remove('invisible')
                     let msg = parseFloat(elm6_value);
                     if(msg <= 0){
-                        //console.log('Hydrated ( % deficit : 0 or negative)');
-                        water_info = 'Hydrated'
+                        water_info = water_msg[0]; //'Hydrated'
                     } else if(msg > 25){
-                        //console.log('Dehydrated (% deficit is greater than 25%)');
+                        water_info = water_msg[1]; //'Dehydrated'
                         water_info = 'Dehydrated'
                     } else {
-                        //console.log('Slightly Dehydrated (  % deficit is less than >0 - 25%)');
-                        water_info = 'Slightly Dehydrated' 
+                        water_info = water_msg[2]; // 'Slightly Dehydrated'
                     };
                 } else {
                     water_info = '' 
@@ -229,7 +198,7 @@
         }
         
         let toggleActive = () => {
-            let option = document.querySelectorAll("li.option");
+            let option = document.querySelectorAll("td.option");
             for (let i = 0; i < option.length; i++) {
                 option[i].onclick = () => {
                     for (let i = 0; i < option.length; i++) {
@@ -246,6 +215,7 @@
         ////////////////////////sae data/////////////
         //let SaveAns = (obj) => {
         let SaveAns = (obj) => {
+            console.log(obj)
             let ans_json = JSON.stringify(obj);
             //let primary_concern = '{{ primary }}';
             //let skin_concerns = JSON.parse("{{category_choice|escapejs}}");
@@ -256,7 +226,7 @@
                 contentType: 'application/json',
                 data: params,
                 dataType: 'json',
-                success: function (response) {
+                success: (response)=>{
                     if (response) {
                         if(next_quiz ===  'True'){
                             WaterIntake();
@@ -283,7 +253,7 @@
                 type: 'POST',
                 data: params,
                 dataType: 'json',
-                success: function (response) {
+                success: (response)=>{
                 }
             })
         }

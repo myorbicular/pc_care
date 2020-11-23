@@ -55,6 +55,9 @@ def skin_quiz(request):
         customer_obj = None
 
     specific_concerns = [104, 105, 106]
+    if customer_obj.get_gender_display() == 'Male':
+            specific_concerns.append(119)
+            
     if category_choice and primary:
         category_data  = Category.objects.filter(pk__in=category_choice)
         concerns_save = Concerns()
@@ -63,7 +66,7 @@ def skin_quiz(request):
         concerns_save.save()
         for x in category_data:
             concerns_save.category.add(x)
-        
+            
         questions_data = Question.objects.filter(Q(category_id__in=category_choice) & ~Q(category__code__in=specific_concerns)).annotate(
             concern_sort=Case(When(category_id=primary, then=1), default=0, output_field=IntegerField()))
         questions_data.order_by('-concern_sort')
@@ -72,8 +75,8 @@ def skin_quiz(request):
         else:
             return redirect('quizapp:products', user_name=customer_obj.employee_id)
     else:
-        questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
-        #questions = Question.objects.filter(code=107).order_by('code')
+        #questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
+        questions = Question.objects.filter(code__in=[107,108,109]).order_by('code')
     if primary:
         next_quiz = False
     else:
@@ -179,7 +182,6 @@ def products(request, user_name):
         'pigmentation_anls_ctx' : pigmentation_anls_ctx,
         'wrinkletight_anls_ctx' : wrinkletight_anls_ctx,
         'concerns' : concerns_data,
-        'test': customer_id,
         'pro_obj' : product_data
     }
     return render(request, 'quizapp/products.html', context)
