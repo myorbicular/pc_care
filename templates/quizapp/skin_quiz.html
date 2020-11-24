@@ -215,7 +215,6 @@
         ////////////////////////sae data/////////////
         //let SaveAns = (obj) => {
         let SaveAns = (obj) => {
-            console.log(obj)
             let ans_json = JSON.stringify(obj);
             //let primary_concern = '{{ primary }}';
             //let skin_concerns = JSON.parse("{{category_choice|escapejs}}");
@@ -230,7 +229,8 @@
                     if (response) {
                         if(next_quiz ===  'True'){
                             WaterIntake();
-                            location.href = '/quizapp/skin_concerns/';
+                            //location.href = '/quizapp/skin_concerns/';
+                            location.href = `/quizapp/skin_concerns/${user_name}/`;
                         } else {
                             location.href = `/quizapp/products/${user_name}/`; 
                         }

@@ -19,34 +19,34 @@
         }
     </style>
 
-<div class="card mt-4 shadow-sm border-info card-size">
-    <div class="card-body border-info">
-        <div class="pricing-header px-3 py-3 pt-md-3 pb-md-0 mx-auto text-center">
-            <h1 class="display-4">{{ pc_data.name }}</h1>
-            <p class="lead">
-                Please Select your skin concerns (Min: 1 & Max: 3)
-            </p>
-        </div>
-        <hr class="border-info mb-0">
-        <div class="card-deck mb-4 text-center">
-        {% for x in category %}
-            <div class="card mt-4 shadow-sm border-info card-size" id="cat-card">
-                <div class="card-header border-info">
-                    <h5 class="my-0 font-weight-normal">{{ x.name }}</h5>
-                </div>
-                <div class="card-body border-info">
-                    <p>information</p>
-                </div>
-                <div class="card-footer text-muted border-info">
-                    <input type="checkbox" value="{{ x.id }}" class="big-checkbox primary-checkbox" name="primary">
-                    <input type="checkbox" value="{{ x.id }}" class="concerns-checkbox" name="checkbox" hidden>
-                </div>
+    <div class="card mt-4 shadow-sm border-info card-size">
+        <div class="card-body border-info">
+            <div class="pricing-header px-3 py-3 pt-md-3 pb-md-0 mx-auto text-center">
+                <h1 class="display-4">{{ pc_data.name }}</h1>
+                <p class="lead">
+                    Please Select your skin concerns (Min: 1 & Max: 3)
+                </p>
             </div>
-        {% endfor %}
+            <hr class="border-info mb-0">
+            <div class="card-deck mb-4 text-center">
+            {% for x in category %}
+                <div class="card mt-4 shadow-sm border-info card-size" id="cat-card">
+                    <div class="card-header border-info">
+                        <h5 class="my-0 font-weight-normal">{{ x.name }}</h5>
+                    </div>
+                    <div class="card-body border-info">
+                        <p>information</p>
+                    </div>
+                    <div class="card-footer text-muted border-info">
+                        <input type="checkbox" value="{{ x.id }}" class="big-checkbox primary-checkbox" name="primary" data-name="{{ x.name }}">
+                        <input type="checkbox" value="{{ x.id }}" class="concerns-checkbox" name="checkbox" hidden>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <a class="btn btn-outline-info" href="{% url 'quizapp:index' %}">Back</a>
+        <a class="btn orb-btn float-right invisible concerns" id="concernsBtn">Concerns&raquo;</a>
     </div>
-    <a class="btn btn-outline-info" href="{% url 'quizapp:index' %}">Back</a>
-    <a class="btn orb-btn float-right invisible concerns" id="concernsBtn">Concerns&raquo;</a>
-</div>
 
 
     <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="modal-quiz"
@@ -72,41 +72,56 @@
             </div>
         </div>
     </div>
-
-    <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
+    {% endblock %}
+    
+    {% block extraJS %}
+    
     <script type="application/javascript">
         let user_name = sessionStorage.getItem("user_name");
         document.concern_form.user_name.value = user_name;
+        let skin_type = "{{ oil_dry_ctx.oil_dry_analysis }}";
 
-        $(document).ready(function () {
-            var concernsBtn = $("#concernsBtn");
-            var values = [];
-            //document.querySelectorAll('input[type="checkbox"]:checked').length;
-            $(".primary-checkbox").change(function () {
-                let elm = $(this);
-                let x = values.indexOf(elm.val());
-                if (elm.is(":checked")) {
-                    values.push(elm.val());
-                    if (values.includes(String(5)) && values.includes(String(6))) {
-                        values.splice(x, 1);
-                        $(elm).prop('checked', false);
-                        alert('skin concerns error: both oily and dry skin is not possible');
-                    } else if (values.length > 3) {
-                        values.splice(x, 1);
-                        $(elm).prop('checked', false);
-                        alert('you can select min: 1 and max: 3');
-                    } else if (values.length >= 1) {
-                        $(concernsBtn).removeClass("invisible")
-                    }
+        let checkbox = document.querySelector('.card-deck');
+        //let values = [];
+        let s = new Set();
+        let dry_array = ['Combination Skin (Slightly Oily)', 'Oily Skin']
+        let oily_array = ['Dry Skin', 'Normal Skin']
+        //https://stackoverflow.com/questions/37073774/using-lodash-push-to-an-array-only-if-value-doesnt-exist
+        checkbox.onchange = (e) => {
+            let elm = e.target;
+            let elm_name = elm.dataset.name;
+            let concernsBtn = document.getElementById('concernsBtn');
+
+            if(e.target.checked){                
+                if(elm_name === 'Dry Skin' && dry_array.includes(skin_type)){
+                    alert('invalid selection');
+                    elm.checked = false;
+                } else if (elm_name === 'Oily Skin' && oily_array.includes(skin_type)){
+                    alert('invalid selection');
+                    elm.checked = false;
                 } else {
-                    values.splice(x, 1);
-                    if (values.length < 1) {
-                        $(concernsBtn).addClass("invisible")
-                    }
+                    s.add(elm.value)
                 }
-            });
-
-
+                
+                if (s.has(String(5)) && s.has(String(10))) {
+                    s.delete(elm.value);
+                    elm.checked = false;
+                    alert('skin concerns error: both oily and dry skin is not possible');
+                } else if (s.size > 3) {
+                    s.delete(elm.value);
+                    elm.checked = false;
+                    alert('you can select min: 1 and max: 3');
+                } else if (s.size >= 1) {
+                    concernsBtn.classList.remove('invisible');
+                }
+            } else {
+                s.delete(elm.value);
+            }
+            //values = Array.from(s);
+        }
+        
+        
+        $(document).ready(function () {
             $(".concerns").click(function () {
                 //https://jsfiddle.net/4bnx8acw/15/
                 //let elm_test = document.querySelectorAll('input[type="checkbox"]:checked').copy
@@ -126,4 +141,4 @@
         });
 
     </script>
-{% endblock %}
+    {% endblock %}

@@ -55,8 +55,6 @@ def skin_quiz(request):
         customer_obj = None
 
     specific_concerns = [104, 105, 106]
-    if customer_obj.get_gender_display() == 'Male':
-            specific_concerns.append(119)
             
     if category_choice and primary:
         category_data  = Category.objects.filter(pk__in=category_choice)
@@ -66,17 +64,21 @@ def skin_quiz(request):
         concerns_save.save()
         for x in category_data:
             concerns_save.category.add(x)
-            
-        questions_data = Question.objects.filter(Q(category_id__in=category_choice) & ~Q(category__code__in=specific_concerns)).annotate(
-            concern_sort=Case(When(category_id=primary, then=1), default=0, output_field=IntegerField()))
-        questions_data.order_by('-concern_sort')
-        if questions_data:
-            questions = questions_data
+        
+        questions_data = Question.objects.filter(Q(category_id__in=category_choice) & ~Q(category__code__in=specific_concerns))
+        if customer_obj.get_gender_display() == 'Male':
+            questions_data = questions_data.filter(~Q(code=119)) #specific_concerns.append(119)
+
+        if questions_data.exists():
+            questions = questions_data.annotate(concern_sort=Case(When(category_id=primary, then=1), default=0, output_field=IntegerField()))
+            questions.order_by('-concern_sort')
         else:
             return redirect('quizapp:products', user_name=customer_obj.employee_id)
     else:
-        #questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
-        questions = Question.objects.filter(code__in=[107,108,109]).order_by('code')
+        questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
+        #questions = Question.objects.filter(code__in=[107,108,109]).order_by('code')
+    
+    
     if primary:
         next_quiz = False
     else:
@@ -89,12 +91,21 @@ def skin_quiz(request):
     return render(request, 'quizapp/skin_quiz.html', context)
 
 
-def skin_concerns(request):
+def skin_concerns(request, user_name):
+    try:
+        customer_id = Customer.objects.get(employee_id=user_name)
+    except ObjectDoesNotExist:
+        customer_id = None
+    
+    oil_dry_ctx = oil_dry_anls(customer_id)
+    #print(oil_dry_ctx['oil_dry_analysis'])
+
     pc_data = get_object_or_404(PersonalCare, id=2)
     category = Category.objects.filter(personalcare_id=pc_data.id)
     context = {
         'category': category,
-        'pc_data': pc_data
+        'pc_data': pc_data,
+        'oil_dry_ctx' : oil_dry_ctx
     }
     return render(request, 'quizapp/skin_concerns.html', context)
 

@@ -8,7 +8,6 @@
     <meta name="generator" content="Jekyll v4.1.1">
     <title>Sticky Footer Navbar Template · Bootstrap</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/sticky-footer-navbar/">
     <link rel="shortcut icon" type="image/x-icon" href={% static 'favicon.ico' %}>
 
     <!-- Bootstrap core CSS -->
@@ -60,6 +59,8 @@
 
 <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
 <script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script>  -->
+
+{% block extraJS %}{% endblock %}
 
 </html>

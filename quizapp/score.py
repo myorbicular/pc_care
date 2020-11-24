@@ -44,7 +44,8 @@ def oil_dry_anls(customer_id):
             quiz_analysis = STATEMENT[2][1]
         elif 5 <= quiz_score <= 7:
             quiz_analysis = STATEMENT[3][1]
-
+    
+    final_output = ''
     if strip_analysis == quiz_analysis:
         final_output = strip_analysis
     #Oily Skin
