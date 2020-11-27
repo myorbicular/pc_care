@@ -17,42 +17,6 @@ AGE_CHOICES = (
 )
 
 
-class PersonalCare(models.Model):
-    code = models.CharField(null=True, blank=True, max_length=100)
-    name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
-
-
-class Category(models.Model):
-    personalcare = models.ForeignKey(PersonalCare, on_delete=models.CASCADE)
-    code = models.CharField(null=True, blank=True, max_length=100)
-    name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
-
-
-class Question(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    code = models.IntegerField(default=0)
-    name = models.CharField(max_length=200)
-    # pub_date = models.DateTimeField('date published')
-    pub_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
-    name = models.CharField(max_length=200)
-    marks = models.FloatField()
-
-    def __str__(self):
-        return self.name
-
 class Customer(models.Model):
     employee_id = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=100)
@@ -80,17 +44,45 @@ class Customer(models.Model):
         return hydration
 
 
-class SkinTest(models.Model):
-    code = models.IntegerField(default=0)
-    pub_date = models.DateTimeField(auto_now_add=True, editable=False)
-    customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
+class PersonalCare(models.Model):
+    code = models.CharField(null=True, blank=True, max_length=100)
+    name = models.CharField(max_length=200)
 
     def __str__(self):
-        return str(self.code)
+        return self.name
+
+
+class Category(models.Model):
+    personalcare = models.ForeignKey(PersonalCare, on_delete=models.CASCADE)
+    code = models.CharField(null=True, blank=True, max_length=100)
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
+
+class Question(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    # code = models.CharField(null=True, blank=True, max_length=100)
+    code = models.IntegerField(default=0)
+    name = models.CharField(max_length=200)
+    # pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    marks = models.FloatField()
+
+    def __str__(self):
+        return self.name
 
 
 class QuizModal(models.Model):
-    skin_test = models.ForeignKey(SkinTest, on_delete=models.CASCADE, null=True, blank=True)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(auto_now_add=True, editable=False)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
@@ -101,7 +93,6 @@ class QuizModal(models.Model):
 
 
 class Hydration(models.Model):
-    skin_test = models.ForeignKey(SkinTest, on_delete=models.CASCADE, null=True, blank=True)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
     weight = models.FloatField(default=0)
     physical_activity = models.FloatField(default=0)
@@ -110,7 +101,6 @@ class Hydration(models.Model):
 
 
 class Concerns(models.Model):
-    skin_test = models.ForeignKey(SkinTest, on_delete=models.CASCADE, null=True, blank=True)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
     category = models.ManyToManyField(Category, related_name='concerns')
     is_primary = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='is_primary')
@@ -119,6 +109,7 @@ class Concerns(models.Model):
 class Products(models.Model):
     code = models.IntegerField(default=0)
     title = models.CharField(max_length=100)
+    #content = models.TextField()
     cleanser = models.CharField(max_length=100)
     moisturizer = models.CharField(max_length=100)
     serum = models.CharField(max_length=100)

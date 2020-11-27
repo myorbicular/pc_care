@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from .models import (Choice, Question, Category, PersonalCare,
-QuizModal, Customer, Hydration, Concerns, Products)
+QuizModal, Customer, Hydration, Concerns, Products, Skin_profile, SkinTest)
 
 """
 @admin.register(Choice)
@@ -55,7 +55,7 @@ class CategoryAdmin(ImportExportModelAdmin):
 
 @admin.register(QuizModal)
 class QuizModalAdmin(ImportExportModelAdmin):
-    list_display = ('question_code', 'question', 'choice', 'marks', 'customer', 'pub_date')
+    list_display = ('test_code', 'pc_name', 'question_code', 'question', 'choice', 'marks', 'customer')
     list_filter = ['customer']
     search_fields = ['choice', 'customer__name']
 
@@ -70,6 +70,12 @@ class QuizModalAdmin(ImportExportModelAdmin):
     def marks(self, obj):
         """return user email"""
         return obj.choice.marks
+    
+    def test_code(self, obj):
+        return obj.skin_test.code
+    
+    def pc_name(self, obj):
+        return obj.choice.question.category.personalcare.name
 
 
 @admin.register(PersonalCare)
@@ -90,18 +96,24 @@ class CategoryAdmin(ImportExportModelAdmin):
 
 @admin.register(Hydration)
 class HydrationAdmin(ImportExportModelAdmin):
-    list_display = ('id', 'customer', 'weight','physical_activity', 'water_intake', 'status')
+    list_display = ('id', 'test_code', 'customer', 'weight','physical_activity', 'water_intake', 'status')
     list_filter = ['customer', 'status']
     list_display_links = ['customer', 'status']
     search_fields =  ['customer', 'status']
 
+    def test_code(self, obj):
+        return obj.skin_test.code
+
 
 @admin.register(Concerns)
 class ConcernsAdmin(ImportExportModelAdmin):
-    list_display = ('id', 'customer', 'is_primary')
+    list_display = ('id', 'test_code', 'customer', 'is_primary')
     list_filter = ['customer']
     list_display_links = ['customer']
     search_fields =  ['customer']
+
+    def test_code(self, obj):
+        return obj.skin_test.code
 
 
 @admin.register(Products)
@@ -110,3 +122,21 @@ class ProductsAdmin(ImportExportModelAdmin):
     list_filter = ['title']
     list_display_links = ['code', 'title']
     search_fields = ['code', 'title', 'cleanser', 'moisturizer', 'serum']
+
+@admin.register(Skin_profile)
+class SkinProfileAdmin(ImportExportModelAdmin):
+    list_display = ('id', 'category_code', 'category', 'from_score', 'to_score', 'skin_status')
+    list_filter = ['category', 'skin_status']
+    list_display_links = ['category', 'skin_status']
+    search_fields =['category', 'skin_status']
+
+    def category_code(self, obj):
+        """return category code"""
+        return obj.category.code
+
+@admin.register(SkinTest)
+class SkinTestAdmin(ImportExportModelAdmin):
+    list_display = ('code', 'customer')
+    list_filter = ['code', 'customer']
+    list_display_links = ['code', 'customer']
+    search_fields = ['code', 'customer']

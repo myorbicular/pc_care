@@ -22,11 +22,11 @@
         </div> 
     </div>
 
-    <div id="loader"></div>
+    <div id="loader"></div>    
     <div class="modal fade" id="modal-quiz">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST" data-url="{% url 'quizapp:create_customer' %}" class="create-form">
+            <div class="modal-content" id="modal-content">
+                <form method="POST" data-url="{% url 'quizapp:create_customer' %}" class="create-form" id="form">
                     {% csrf_token %}
                     <div class="modal-header">
                         <h5 class="modal-title">Create Profile</h5>
@@ -49,43 +49,11 @@
             </div>
         </div>
     </div>
+<button type="button" id="dummy">Test</button>
+{% endblock %}
 
-    <script type="text/javascript" src="{% static 'assets/dist/js/jquery.js' %}"></script>
+{% block extraJS %}
 
-    <script type="application/javascript">
-        $(document).ready(function () {
-            //let user_name = sessionStorage.getItem("name");
-            let user_name = 'user_name';
-            if (user_name in sessionStorage) {
-                sessionStorage.removeItem(user_name);
-            }
+<script src="{% static 'js/index.js' %}"></script>
 
-
-            var SaveForm = function (e) {
-                e.preventDefault();
-                var form = $(this);
-                $.ajax({
-                    url: form.attr('data-url'),
-                    data: form.serialize(),
-                    type: form.attr('method'),
-                    dataType: 'json',
-                    success: function (data) {
-                        $('#modal-quiz .modal-content').html(data.html_data);
-                        if (data.exists) {
-                            sessionStorage.setItem("user_name", data.exists);
-                        }
-                        if (data.user_info) {
-                            sessionStorage.setItem("user_name", data.user_info);
-                            location.href = "{% url 'quizapp:skin_quiz' %}";
-                        }
-                    }
-                })
-            };
-
-            // create
-            //$(".show-form").click(ShowForm);
-            $("#modal-quiz").on("submit", ".create-form", SaveForm);
-
-        });
-    </script>
 {% endblock %}

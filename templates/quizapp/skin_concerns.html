@@ -48,13 +48,14 @@
         <a class="btn orb-btn float-right invisible concerns" id="concernsBtn">Concerns&raquo;</a>
     </div>
 
-
+    {{ oil_dry_ctx.oil_dry_analysis }}
     <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="modal-quiz"
          aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="get" action="{% url 'quizapp:skin_quiz' %}" name="concern_form">
+                <form method="get" action="{% url 'quizapp:concerns_quiz' %}" name="concern_form" class="concern-form">
                 <input name="user_name" type="text" hidden>
+                <input name="test_code" type="text" hidden>
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Please select skin concern you would like to address first.</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -72,20 +73,21 @@
             </div>
         </div>
     </div>
+
+    {{ test_code }}
     {% endblock %}
     
     {% block extraJS %}
     
     <script type="application/javascript">
         let user_name = sessionStorage.getItem("user_name");
+        let test_code = sessionStorage.getItem("test_code");
         document.concern_form.user_name.value = user_name;
+        document.concern_form.test_code.value = test_code;
         let skin_type = "{{ oil_dry_ctx.oil_dry_analysis }}";
 
         let checkbox = document.querySelector('.card-deck');
-        //let values = [];
         let s = new Set();
-        let dry_array = ['Combination Skin (Slightly Oily)', 'Oily Skin']
-        let oily_array = ['Dry Skin', 'Normal Skin']
         //https://stackoverflow.com/questions/37073774/using-lodash-push-to-an-array-only-if-value-doesnt-exist
         checkbox.onchange = (e) => {
             let elm = e.target;
@@ -93,15 +95,7 @@
             let concernsBtn = document.getElementById('concernsBtn');
 
             if(e.target.checked){                
-                if(elm_name === 'Dry Skin' && dry_array.includes(skin_type)){
-                    alert('invalid selection');
-                    elm.checked = false;
-                } else if (elm_name === 'Oily Skin' && oily_array.includes(skin_type)){
-                    alert('invalid selection');
-                    elm.checked = false;
-                } else {
-                    s.add(elm.value)
-                }
+                s.add(elm.value)
                 
                 if (s.has(String(5)) && s.has(String(10))) {
                     s.delete(elm.value);
@@ -137,6 +131,27 @@
             $('#modal-quiz').on('hidden.bs.modal', function () {
                 $("#card-load").empty();
             });
+
+            /*
+            var SaveForm = function (e) {
+                e.preventDefault();
+                var form = $(this);
+                console.log(form.attr('data-url'))
+                $.ajax({
+                    url: form.attr('data-url'),
+                    data: form.serialize(),
+                    type: form.attr('method'),
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data)
+                    }
+                })
+            };
+
+            // create
+            //$(".show-form").click(ShowForm);
+            $("#modal-quiz").on("submit", ".concern-form", SaveForm);
+            */
 
         });
 
