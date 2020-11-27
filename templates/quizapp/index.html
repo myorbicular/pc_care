@@ -49,7 +49,33 @@
             </div>
         </div>
     </div>
-<button type="button" id="dummy">Test</button>
+
+<div hidden>
+    <div class="card mt-4 shadow-sm border-info" style="width: 50rem;">
+        <div class="card-header border-info">
+            <h4 class="my-0 font-weight-normal">Welcome!
+                <span class="name"></span>
+                <span id="ques_count" style="margin-left: 15%;"></span>
+            </h4>
+        </div>
+        <div class="card-body border-info quiz_body">
+            <div id="questions">
+                <h3 id="question"></h3>
+                <form name="watr-intake" id="watr-intake" class="option_group">
+                    <table class="option_table"><tbody id="option_table"></tbody></table>
+                    <h3 class="float-right pt-3" id="water-content"></h3>
+                </form> 
+                <p id="note" class="pt-5 d-none"></p>
+            </div>
+        </div>
+        <div class="card-footer text-muted border-info">
+            <a id="btn-previous" class="btn btn-primary orb-btn invisible" href="#" onclick="previous()">Previous</a>
+            <a id="btn-next" class="btn btn-primary orb-btn float-right invisible" href="#" onclick="next()">Next Question</a>
+        </div>
+    </div>
+</div>
+<button id="ramesh">ramesh</button>
+
 {% endblock %}
 
 {% block extraJS %}
