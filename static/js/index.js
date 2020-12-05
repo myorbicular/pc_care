@@ -26,22 +26,26 @@ emp_id.onchange = (e) => {
 
 
 function getCustomer(args) {
+    let url = `/quizapp/customers?employee_id=${args}`;
     let xmlhttp = new XMLHttpRequest();
+    //let url = `/quizapp/create_customer?employee_id=${args}`
+
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             let responseJsonObj = JSON.parse(this.responseText);
-            let user_info = responseJsonObj.user_info;
+            let user_info = responseJsonObj.data;
             let test_code = responseJsonObj.test_code;
+            console.log(responseJsonObj)
 
             if(user_info){
-                let user_name = responseJsonObj.user_info.employee_id;
+                let user_name = responseJsonObj.data.employee_id;
                 sessionStorage.setItem("user_name", user_name);
                 sessionStorage.setItem("test_code", test_code); 
                 buildTable(user_info, user_name, test_code)
             }
         }
     }
-    xmlhttp.open("GET", `/quizapp/create_customer?employee_id=${args}`, true);
+    xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
 
@@ -64,6 +68,8 @@ function buildTable(data, uname, tcode){
 }
 
 function saveCustomer(formData) {
+    let url = "/quizapp/customers/";
+
     let xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -76,7 +82,7 @@ function saveCustomer(formData) {
             //location.href = `/quizapp/skin_quiz/${user_name}/${test_code}/`;
         }
     }
-    xmlhttp.open("POST", "/quizapp/create_customer/", true);
+    xmlhttp.open("POST", url, true);
     xmlhttp.send(formData);
 }
 

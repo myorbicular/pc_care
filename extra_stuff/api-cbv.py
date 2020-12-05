@@ -1,4 +1,4 @@
-from .serializers import ChoiceSerializer, QuestionSerializer, CustomerSerializer, TestSerializer, QuizAnsSerializer
+from .serializers import ChoiceSerializer, QuestionSerializer, CustomerSerializer, TestSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework import status
@@ -25,7 +25,6 @@ from .serializers import *
 def get_customer_obj(uname):
     try:
         return Customer.objects.get(employee_id=uname)
-        #return Customer.objects.filter(employee_id=uname)
     except Customer.DoesNotExist:
         raise Http404
 
@@ -48,64 +47,91 @@ def responsedata(status, message, code, data={}):
         return {"success":status,"data":{},"code":code,"message":message}
 
 
-class CustomerList(APIView):
-    data = dict()
+#@api_view(['GET','POST'])
+#def create_customer(request):
+class create_customer1(APIView):
+    #data = dict()
     def get(self,request):
-        emp_id = self.request.query_params['employee_id']
-        customer = get_object_or_404(Customer, employee_id=emp_id)
-        serializer = CustomerSerializer(customer, many=False)
-        self.data['data'] = serializer.data
-        self.data['test_code'] = get_test_code()
-        return Response(self.data)
+        emp_id = request.query_params['employee_id']
+        customer = get_customer_obj(emp_id)
+        customer_obj = Customer.objects.get(employee_id=emp_id)
+        serializer = CustomerSerializer(customer_obj, many=False)
+        #data['user_info'] = serializer.data          
+        #return Response(data)
+        return Response(serializer.data)
 
     def post(self,request):
         serializer = CustomerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            self.data['data'] = serializer.data
-            self.data['test_code'] = get_test_code()
-            return Response(self.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
-class Quiz1(generics.ListAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+
+class create_customer2(generics.ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ('employee_id',)    
+    ordering_fields = ['id']
+    ordering = ['-category_id']
+
+
+class create_customer3(generics.ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('employee_id',)    
     
+    """
     def get_queryset(self):
-        return self.queryset.filter(category__personalcare_id=1).order_by('-category_id')[:3]
+        emp_id = self.request.query_params['employee_id']        
+        return Customer.objects.get(employee_id=emp_id)
+    
+    def get_object(self):
+        emp_id = self.request.query_params['employee_id']
+        return self.get_queryset().filter(employee_id=emp_id)
+    """
+
+class create_customer(generics.ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('employee_id',)  
 
 
-class SkinTestCreate(APIView):
-    def post(self,request):
-        uname = request.data['user_name']
-        customer = get_customer_obj(uname)
-        data = request.data
-        data.pop('user_name')
-        #data['customer'] = data.pop('user_name')
-        #data['user_name'] = data['customer'] = customer.pk
-        data['customer'] = customer.pk
-        serializer = SkinTestSerializer(data = data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('employee_id',)
 
 
-class QuizAnswers(APIView):
-    def get(self,request):
-        quiz_obj = QuizModal.objects.all()
-        serializer = QuizAnsSerializer(quiz_obj, many=True)
-        return Response(serializer.data)
+@api_view(['GET'])
+def questions_list(request):
+    data = dict()
+    #print("request.headers :", request.headers)
+    
+    if request.method == "GET":
+        user_name = request.GET['user_name']
+        test_code = request.GET['test_code']
+        
+        dummy = request.headers.get('test_code')
+        print(dummy)
+        customer_obj = Customer.objects.get(employee_id=user_name)
+        
+        if user_name:
+            skin_test_obj = SkinTest()
+            skin_test_obj.code = test_code
+            skin_test_obj.customer = customer_obj
+            skin_test_obj.save()
+            questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
+            serializer = QuestionSerializer(questions, many=True)
+            data['questions'] = serializer.data
+            data['quiz_type'] = 'skin'
+            return Response(data)
 
-    def post(self,request):
-        print(request.data)
-        serializer = QuizAnsSerializer(data=request.data)
-        if serializer.is_valid():
-            #serializer.save()
-            print(serializer.data)
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 @csrf_exempt
 def quiz_answers(request):
@@ -134,32 +160,6 @@ def quiz_answers(request):
         'saved': True
     }
     return JsonResponse(data, safe=False)
-
-
-@api_view(['GET'])
-def questions_list(request):
-    data = dict()
-    #print("request.headers :", request.headers)
-    
-    if request.method == "GET":
-        user_name = request.GET['user_name']
-        test_code = request.GET['test_code']
-        
-        dummy = request.headers.get('test_code')
-        print(dummy)
-        customer_obj = Customer.objects.get(employee_id=user_name)
-        
-        if user_name:
-            skin_test_obj = SkinTest()
-            skin_test_obj.code = test_code
-            skin_test_obj.customer = customer_obj
-            skin_test_obj.save()
-            questions = Question.objects.filter(category__personalcare_id=1).order_by('code')
-            serializer = QuestionSerializer(questions, many=True)
-            data['questions'] = serializer.data
-            data['quiz_type'] = 'skin'
-            return Response(data)
-
 
 
 @csrf_exempt
@@ -242,6 +242,13 @@ class QuestionsTest1(generics.ListAPIView):
     ordering = ['-category_id']
 
 
+class Quiz1(generics.ListAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    
+    def get_queryset(self):
+        return self.queryset.filter(category__personalcare_id=1).order_by('-category_id')[:3]
+
 
 class Quiz2(generics.ListAPIView):
     queryset = Question.objects.all()
@@ -249,6 +256,23 @@ class Quiz2(generics.ListAPIView):
     
     def get_queryset(self):
         return self.queryset.filter(category__personalcare_id=1).order_by('-category_id')
+
+
+class SkinTestCreate(APIView):
+    def post(self,request):
+        uname = request.data['user_name']
+        customer = get_customer_obj(uname)
+        data = request.data
+        data.pop('user_name')
+        #data['customer'] = data.pop('user_name')
+        #data['user_name'] = data['customer'] = customer.pk
+        data['customer'] = customer.pk
+        serializer = SkinTestSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

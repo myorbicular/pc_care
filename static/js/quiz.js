@@ -68,8 +68,9 @@ let next = () => {
     // if the question is last then redirect to final page
     if (question_count === questions.length - 1) {
         nextBtn.classList.add('invisible');
-        SaveTest();
-        //SaveAns(ans_data);
+        //SaveTest();
+        SaveAns(ans_data);
+        //WaterIntake();
     } else {
         question_count++;
         show(question_count);
@@ -200,7 +201,7 @@ let toggleActive = () => {
 
 let SaveTest = () => {
     let url = "/quizapp/skin_test/";
-    let params = {code:test_code, customer:user_name};
+    let params = {code:test_code, user_name:user_name};
     let json_params = JSON.stringify(params);
 
     let xmlhttp = new XMLHttpRequest();
@@ -222,15 +223,15 @@ let SaveAns = (obj) => {
     //let skin_concerns = JSON.parse("{{category_choice|escapejs}}");
     let params = {user_choice:ans_json, user_name:user_name, test_code:test_code};
     $.ajax({
-        url: '/quizapp/quiz_answers/',
-        type: 'get',
+        url: '/quizapp/quizanswers/',
+        type: 'POST',
         contentType: 'application/json',
         data: params,
         dataType: 'json',
         success: (response)=>{
             if (response) {
                 if(quiz_type ===  'skin'){
-                    WaterIntake();
+                    //WaterIntake();
                     location.href = `/quizapp/skin_concerns/${user_name}/${test_code}/`;
                 } else {
                     location.href = `/quizapp/products/${user_name}/${test_code}/`;

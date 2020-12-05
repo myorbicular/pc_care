@@ -1,4 +1,4 @@
-from .models import Question, Choice, Customer, SkinTest
+from .models import Question, Choice, Customer, SkinTest, QuizModal
 from rest_framework import serializers
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -18,6 +18,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = '__all__'
 
+    """
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # Access self.context here to add contextual data into ret
+        ret['foo'] = self.context['foo']
+        return ret
+    """
 
 class TestSerializer(serializers.Serializer):
     content = serializers.CharField(max_length=200)
@@ -30,7 +37,7 @@ class SkinTestSerializer(serializers.ModelSerializer):
     #category_employee_id = serializers.RelatedField(source='Customer', read_only=True)
     #skintests = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
     #customer = CustomerSerializer()
-    customer = CustomerSerializer()
+    #customer = CustomerSerializer()
     #customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), source='customer', write_only=True)
     
     class Meta:
@@ -45,3 +52,9 @@ class SkinTestSerializer(serializers.ModelSerializer):
         response['customer'] = CustomerSerializer(instance.customer).data
         return response
     """
+
+
+class QuizAnsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizModal
+        fields = '__all__'
