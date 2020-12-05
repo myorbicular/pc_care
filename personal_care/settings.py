@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'import_export',
     'rest_framework',
+    'django_filters',
 ]
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
@@ -132,5 +133,6 @@ CORS_ORIGIN_WHITELIST = (
 
 REST_FRAMEWORK={
     'DEFAULT_AUTHENTICATION_CLASSES' : ['rest_framework.authentication.BasicAuthentication'],
-    #'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticated','rest_framework.permissions.DjangoModelPermissions']
+    #'DEFAULT_PERMISSION_CLASSES' : ['rest_framework.permissions.IsAuthenticated','rest_framework.permissions.DjangoModelPermissions'],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }

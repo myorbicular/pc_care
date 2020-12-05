@@ -59,7 +59,7 @@ function buildTable(data, uname, tcode){
         <tr><th>Location</th><td>${ data.location }</td></tr>
         <tr><th colspan="2" style="text-align:right">
         <p class="mb-0">Your data is already with us, still you want to continue
-        <span><a id="quiz" onclick="test()" href="#"><br>Please proceed...&raquo;</a></span></p></th></tr></tr></table></div>`;
+        <span><a id="quiz" href="/quizapp/skin_quiz/"><br>Please proceed...&raquo;</a></span></p></th></tr></tr></table></div>`;
         //<span><a href="/quizapp/skin_quiz/" id="quiz">
 }
 
@@ -85,7 +85,7 @@ function saveCustomer(formData) {
 $("#quiz").click(function(){
     console.log('ok')
 });
-*/
+
 
 function test(){
     let elm_clone = $(".card")
@@ -95,4 +95,4 @@ function test(){
     $(".container").html(elm_clone.clone());
 }
 
-
+*/

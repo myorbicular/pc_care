@@ -16,33 +16,31 @@ let questions = [];
 ans_data = [];
 water_msg = ['Hydrated', 'Dehydrated', 'Slightly Dehydrated']
 
-function getQuestions(callback) {
-    let params = {user_name:user_name, test_code:test_code};
-    let json_params = JSON.stringify(params);
-    $.ajax({
-        //url: `/quizapp/questions_list?user_name=${user_name}&test_code=${test_code}`,
-        url: `/quizapp/questions_list/`,
-        type: 'get',
-        contentType: 'application/json',
-        data: params,
-        dataType: 'json',
-        success: function(data) {
-            callback(data.questions);
-        }
-    })
-}
+////////////////////////testing/////////////
+let quiz1 = (callback) => {
+    var url = "/quizapp/quiz1/";
+    //var params = `user_name=${user_name}&test_code=${test_code}`;
+    //let json_params = JSON.stringify(params);
 
-function processUserDetailsResponse(userData){
-    questions.push(userData)
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let responseJsonObj = JSON.parse(this.responseText);
+            callback(responseJsonObj);
+        }
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send(null);
 }
+////////////////////////testing/////////////
 
 window.onload = () => {
-    getQuestions((response)=>{
+    quiz1((response)=>{
         //questions.push(response)
-        questions = response 
+        questions = response ;
         
     });
-    
+
     setTimeout(()=>{
         show(question_count);
     }, 600)
@@ -70,7 +68,8 @@ let next = () => {
     // if the question is last then redirect to final page
     if (question_count === questions.length - 1) {
         nextBtn.classList.add('invisible');
-        SaveAns(ans_data);
+        SaveTest();
+        //SaveAns(ans_data);
     } else {
         question_count++;
         show(question_count);
@@ -196,6 +195,23 @@ let toggleActive = () => {
             nextBtn.classList.remove('invisible')
         };
     }
+}
+
+
+let SaveTest = () => {
+    let url = "/quizapp/skin_test/";
+    let params = {code:test_code, customer:user_name};
+    let json_params = JSON.stringify(params);
+
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let responseJsonObj = JSON.parse(this.responseText);
+        }
+    }
+    xmlhttp.open("POST", url, true);
+    xmlhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xmlhttp.send(json_params);
 }
 
 ////////////////////////sae data/////////////

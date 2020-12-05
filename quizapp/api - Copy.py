@@ -188,7 +188,7 @@ class Quiz1(generics.ListAPIView):
     serializer_class = QuestionSerializer
     
     def get_queryset(self):
-        return self.queryset.filter(category__personalcare_id=1).order_by('-category_id')[:3]
+        return self.queryset.filter(category__personalcare_id=1).order_by('-category_id')
 
 
 class Quiz2(generics.ListAPIView):
@@ -197,51 +197,3 @@ class Quiz2(generics.ListAPIView):
     
     def get_queryset(self):
         return self.queryset.filter(category__personalcare_id=1).order_by('-category_id')
-
-
-
-class SkinTestCreate1(generics.ListCreateAPIView):
-    queryset = SkinTest.objects.all()
-    #lookup_url_kwarg = 'eventnumber'
-    serializer_class= SkinTestSerializer
-
-
-
-class SkinTestCreate(APIView):
-    def get_object(self,uname):
-        try:
-            return Customer.objects.get(employee_id=uname)
-        except Customer.DoesNotExist:
-            raise Http404
-
-    def post(self,request):
-        uname = request.data['user_name']
-        customer = self.get_object(uname)
-        print(uname)
-        serializer = SkinTestSerializer(customer, data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            print(serializer.data)
-            return Response(serializer.data)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-
-#class CompanyContactViewSet(viewsets.ModelViewSet):
-class SkinTestCreate3(generics.ListCreateAPIView):
-    serializer_class = SkinTestSerializer
-
-
-    def create(self, validated_data):
-        serializer = self.get_serializer(data=self.request.data)
-        uname =  self.request.data.pop('user_name')
-        #customer_instance = Customer.objects.filter(employee_id=uname).first()
-        customer_instance = Customer.objects.get(employee_id=uname)
-        
-        if not serializer.is_valid():
-            #print(serializer.errors)
-            print("data :", serializer.data)
-            data = serializer.validated_data
-            serializer.save(customer=customer_instance)
-            #headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data,status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)

@@ -84,6 +84,8 @@ class SkinTest(models.Model):
     code = models.IntegerField(default=0)
     pub_date = models.DateTimeField(auto_now_add=True, editable=False)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
+    #customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL, related_name='skintests_customer')
+    #customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL, related_name="skintests",)
 
     def __str__(self):
         return str(self.code)

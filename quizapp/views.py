@@ -14,7 +14,7 @@ from .score import oil_dry_anls, sen_res_anls, acne_anls, pigmentation_anls, age
 def index(request):
     context = {
         'form': CustomerForm()
-    }
+    }    
     return render(request, 'quizapp/index.html', context)
 
 

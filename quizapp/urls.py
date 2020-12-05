@@ -1,8 +1,13 @@
-from django.urls import path
+from django.urls import path, include
 from quizapp import views
 from quizapp import api
+from rest_framework.routers import DefaultRouter
+
 
 app_name = 'quizapp'
+
+#router = DefaultRouter()
+#router.register('quizapp',api.Questions_test)
 
 urlpatterns = [
     #api views
@@ -19,4 +24,10 @@ urlpatterns = [
     path('questions_list/', api.questions_list, name='questions_list'),
     path('quiz_answers/', api.quiz_answers, name='quiz_answers'),
     path('water_info/', api.water_info, name='water_info'),
+
+    #path('api/',include(router.urls))
+    path('questions_test/', api.questions_test, name='questions_test'),
+    path('quiz1/', api.Quiz1.as_view()),
+    path('skin_test/', api.SkinTestCreate.as_view()),
+    
 ]
