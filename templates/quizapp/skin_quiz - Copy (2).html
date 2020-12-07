@@ -45,7 +45,13 @@ let water_content = document.getElementById('water-content');
 let note = document.getElementById('note');
 let e1_value, e2_value, e3_value, e4_value, water_val;
 let questions = [];
+//ans_data = [];
+var JSONObject = new Object();
+JSONObject.Choices = [];
+var myArry = []
+var myObj = {}
 var selected_choice = [];
+
 water_msg = ['Hydrated', 'Dehydrated', 'Slightly Dehydrated']
 
 ////////////////////////testing/////////////
@@ -84,23 +90,81 @@ let previous = () => {
     let data = selected_choice
     
     option.forEach(e => {
-        let elm_id = e.getAttribute("id");        
-        //const filteredChoice = data.filter((item) => { return item.choice !== elm_id })        
-        data.forEach(e => {
-            if(elm_id === e.choice){                
-                const filteredChoice = data.filter((item) => { return item.choice !== elm_id });
-                selected_choice = filteredChoice
-            }
+        let elm_id = e.getAttribute("id");
+        const filteredPeople = data.filter((item) => {
+            console.log(item)
+            item.choice !== 13
+            console.log(item)
         })
-    });     
+        filteredPeople
+    }   
+});
+
+    
+
+        
+
+        
+        /*
+        if (Object.values(data).includes('test1')) {
+            alert('exists');
+        }
+        */
+        
+    })
+
+    //let ans_option_elm = document.getElementById(ans_data[question_count]);
+    //console.log(JSONObject.Choices)
+    //console.log(JSONObject.Choices['choice']);
+
+    /*
+    for(let i=0;i<data.length;i++){
+        //let elm_test = document.getElementById(data[i].choice);
+        //let ans_option_elm = document.getElementById(JSONObject.Choices[i].choice);
+        console.log(data[i].choice)
+        let elm_id = data[i].choice
+        
+    }
+    
+    Object.keys(JSONObject.Choices).filter(function(key) {
+        //return countries[key] <= 1000000000;
+        console.log(key['choice'])
+    });
+
+    
+    //console.log(JSONObject.Choices[question_count].choice))
+    //@ let ans_option_elm = document.getElementById(JSONObject.Choices[question_count].choice);
+    //console.log('JSONObject', JSONObject.Choices[question_count].choice)
+
+    if (ans_option_elm) {
+        ans_option_elm.classList.add("active");
+    }
+    */
+}
+let remove_empty = (obj) => {
+    //Object.keys(obj).forEach((key) => (obj[key] == null) && delete obj[key]);
+    for (var prop in obj) { 
+        if (obj[prop] === null || obj[prop] === undefined) { 
+            delete obj[prop]; 
+        } 
+    } 
 }
 
-
 let next = () => {
-    let data = selected_choice;
+    let obj = selected_choice
+    //remove_empty(obj);
+    //Object.keys(data).forEach((key) => (data[key] == null) && delete data[key]);
+
+    /*
+    const removeEmpty = obj => {
+        Object.keys(data).forEach(key => obj[key] == null && delete obj[key]);
+    };
+    */
+
     let retrieve_ans = document.querySelector("td.option.active");
 
-    if (retrieve_ans) {
+    if (retrieve_ans) {              
+        //obj.push({choice: retrieve_ans.id, customer: customer, skin_test: skin_test});
         selected_choice.push({
             choice: retrieve_ans.id,
             customer: customer,
@@ -108,15 +172,17 @@ let next = () => {
         });
     };
 
+    console.log(selected_choice)
+
     // if the question is last then redirect to final page
     if (question_count === questions.length - 1) {
         nextBtn.classList.add('invisible');
-        
+        //delete JSONObject.Choices[6];
+        //console.log("after :", JSONObject.Choices)
         SaveAns(selected_choice);
 
         if(e1_value){
             //WaterIntake();
-            hydration()
         } else {
             console.log("no water content")
         }
@@ -264,7 +330,7 @@ let SaveAns = (obj) => {
 }
 
 ////////////////////////save water information/////////////
-let hydration = () => {
+let WaterIntake = () => {
     let url = '/quizapp/hydration_info/';
     let params = {
         customer: customer,

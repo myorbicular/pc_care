@@ -4,8 +4,9 @@ const takeQuiz = document.getElementsByClassName("show-form")[0];
 
 takeQuiz.onclick = () => {
     if(sessionStorage.length !== 0) {
-        sessionStorage.removeItem('user_name');
-        sessionStorage.removeItem('test_code');
+        sessionStorage.removeItem("customer_pk");           
+        sessionStorage.removeItem("skinTest_pk");         
+        sessionStorage.removeItem('user_name');        
     }
 }
 
@@ -32,16 +33,13 @@ function getCustomer(args) {
 
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            let responseJsonObj = JSON.parse(this.responseText);
-            let user_info = responseJsonObj.data;
-            let test_code = responseJsonObj.test_code;
-            console.log(responseJsonObj)
+            let resObj = JSON.parse(this.responseText)[0];
+            //let test_data = responseJsonObj.map(x => `<p>${x}</p>`);
 
-            if(user_info){
-                let user_name = responseJsonObj.data.employee_id;
-                sessionStorage.setItem("user_name", user_name);
-                sessionStorage.setItem("test_code", test_code); 
-                buildTable(user_info, user_name, test_code)
+            if(resObj){
+                sessionStorage.setItem("customer_pk", resObj.id);                
+                sessionStorage.setItem("user_name", resObj.employee_id);                
+                buildTable(resObj)
             }
         }
     }
@@ -49,21 +47,21 @@ function getCustomer(args) {
     xmlhttp.send();
 }
 
-function buildTable(data, uname, tcode){
+function buildTable(data){
     var table = document.getElementById('modal-content')
     table.innerHTML = `<div class="modal-header"><h5 class="modal-title">Customer Info</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span></button></div><div class="modal-body pt-0">
         <table class="table table-bordered mt-1">
         <tr><th colspan="2" style="background-color: #0c499c;color: white">Customer Info</th></tr>
-        <tr><th>Employee ID</th><td>${ data.employee_id }</td></tr>
-        <tr><th>Employee Name</th><td>${ data.name }</td></tr>
-        <tr><th>Gender</th><td>${ data.gender }</td></tr>
-        <tr><th>Age</th><td>${ data.age }</td></tr>
-        <tr><th>Location</th><td>${ data.location }</td></tr>
+        <tr><th>Employee ID</th><td>${data.employee_id}</td></tr>
+        <tr><th>Employee Name</th><td>${data.name}</td></tr>
+        <tr><th>Gender</th><td>${data.gender}</td></tr>
+        <tr><th>Age</th><td>${data.age }</td></tr>
+        <tr><th>Location</th><td>${data.location}</td></tr>
         <tr><th colspan="2" style="text-align:right">
         <p class="mb-0">Your data is already with us, still you want to continue
-        <span><a id="quiz" href="/quizapp/skin_quiz/"><br>Please proceed...&raquo;</a></span></p></th></tr></tr></table></div>`;
+        <span><a id="quiz" href="#" onclick="SaveTest(${data.id})"><br>Please proceed...&raquo;</a></span></p></th></tr></tr></table></div>`;
         //<span><a href="/quizapp/skin_quiz/" id="quiz">
 }
 
@@ -72,13 +70,11 @@ function saveCustomer(formData) {
 
     let xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            let responseJsonObj = JSON.parse(this.responseText);
-            let user_name = responseJsonObj.user_name;
-            let test_code = responseJsonObj.test_code;
-            sessionStorage.setItem("user_name", user_name);
-            sessionStorage.setItem("test_code", test_code); 
-            location.href = `/quizapp/skin_quiz/`;
+        if (this.readyState == 4 && this.status == 201) {
+            let resObj = JSON.parse(this.responseText);
+            sessionStorage.setItem("customer_pk", resObj.id);              
+            sessionStorage.setItem("user_name", resObj.employee_id);
+            SaveTest(resObj.id)
             //location.href = `/quizapp/skin_quiz/${user_name}/${test_code}/`;
         }
     }
@@ -86,6 +82,23 @@ function saveCustomer(formData) {
     xmlhttp.send(formData);
 }
 
+
+let SaveTest = (customer) => {    
+    let url = "/quizapp/skin_test/";    
+    let json_params = JSON.stringify({customer:customer});
+
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 201) {
+            let resObj = JSON.parse(this.responseText);
+            sessionStorage.setItem("skinTest_pk", resObj.id);
+            location.href = `/quizapp/skin_quiz/`;
+        }
+    }
+    xmlhttp.open("POST", url, true);
+    xmlhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xmlhttp.send(json_params);
+}
 
 /*
 $("#quiz").click(function(){

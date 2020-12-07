@@ -1,4 +1,4 @@
-from .models import Question, Choice, Customer, SkinTest, QuizModal
+from .models import Question, Choice, Customer, SkinTest, QuizModal, Hydration
 from rest_framework import serializers
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -42,8 +42,8 @@ class SkinTestSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = SkinTest
-        #fields = '__all__'
-        fields = ('code', 'customer')
+        fields = '__all__'
+        #fields = ('code', 'customer')
     
 
     """
@@ -58,3 +58,10 @@ class QuizAnsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizModal
         fields = '__all__'
+
+
+class HydrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hydration
+        fields = '__all__'
+

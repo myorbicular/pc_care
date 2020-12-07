@@ -31,6 +31,7 @@ urlpatterns = [
 
     path('questions_list/', api.questions_list, name='questions_list'),
     path('water_info/', api.water_info, name='water_info'),
+    path('hydration_info/', api.HydrationInfo.as_view()),
 
     #path('api/',include(router.urls)),
     path('questions_test/', api.questions_test, name='questions_test'),

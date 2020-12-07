@@ -72,7 +72,9 @@ class QuizModalAdmin(ImportExportModelAdmin):
         return obj.choice.marks
     
     def test_code(self, obj):
-        return obj.skin_test.code
+        code = obj.skin_test.code
+        if code is not None:
+            return code
     
     def pc_name(self, obj):
         return obj.choice.question.category.personalcare.name

@@ -327,3 +327,54 @@ class SkinTestCreate3(generics.ListCreateAPIView):
             #headers = self.get_success_headers(serializer.data)
             return Response(serializer.data,status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+
+
+class CustomerList(generics.ListCreateAPIView):
+    serializer_class = CustomerSerializer
+    
+    def get_queryset(self):
+        queryset = Customer.objects.filter(employee_id=117229)
+        return queryset
+
+
+#############################
+class CustomerList1(APIView):
+    data = dict()
+    def get(self,request):
+        emp_id = self.request.query_params['employee_id']
+        customer = get_object_or_404(Customer, employee_id=emp_id)
+        serializer = CustomerSerializer(customer, many=False)
+        self.data['data'] = serializer.data
+        self.data['test_code'] = get_test_code()
+        return Response(self.data)
+
+    def post(self,request):
+        serializer = CustomerSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            self.data['data'] = serializer.data
+            self.data['test_code'] = get_test_code()
+            return Response(self.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+###########
+class SkinTestCreate1(APIView):
+    def post(self,request):
+        print(request.data)
+        serializer = SkinTestSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+#######
+class QuizAnswers(APIView):
+    def post(self,request):
+        #print(request.data)
+        data = request.data['Choices']
+        print(data)
+        serializer = QuizAnsSerializer(data=data[0])
+        if serializer.is_valid():
+            print("serializer", serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

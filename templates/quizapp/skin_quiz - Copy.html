@@ -45,8 +45,13 @@ let water_content = document.getElementById('water-content');
 let note = document.getElementById('note');
 let e1_value, e2_value, e3_value, e4_value, water_val;
 let questions = [];
-var selected_choice = [];
+ans_data = [];
 water_msg = ['Hydrated', 'Dehydrated', 'Slightly Dehydrated']
+
+///test///
+var JSONObject = new Object();
+JSONObject.Orders = [];
+///test///
 
 ////////////////////////testing/////////////
 let quiz1 = (callback) => {
@@ -69,7 +74,8 @@ let quiz1 = (callback) => {
 window.onload = () => {
     quiz1((response)=>{
         //questions.push(response)
-        questions = response ;     
+        questions = response ;
+        
     });
 
     setTimeout(()=>{
@@ -80,46 +86,32 @@ window.onload = () => {
 let previous = () => {
     question_count--;
     show(question_count);  
-    let option = document.querySelectorAll("td.option");
-    let data = selected_choice
     
-    option.forEach(e => {
-        let elm_id = e.getAttribute("id");        
-        //const filteredChoice = data.filter((item) => { return item.choice !== elm_id })        
-        data.forEach(e => {
-            if(elm_id === e.choice){                
-                const filteredChoice = data.filter((item) => { return item.choice !== elm_id });
-                selected_choice = filteredChoice
-            }
-        })
-    });     
+    let option = document.querySelectorAll("td.option");
+    let ans_option_elm = document.getElementById(ans_data[question_count]);
+    console.log('ans_data', ans_data[question_count])
+    console.log('JSONObject', JSONObject.Orders[question_count])
+
+    if (ans_option_elm) {
+        ans_option_elm.classList.add("active");
+    }
 }
 
-
 let next = () => {
-    let data = selected_choice;
     let retrieve_ans = document.querySelector("td.option.active");
+    if(retrieve_ans){
+        ans_data[question_count] = retrieve_ans.id;
+        JSONObject.Orders.push({choice: retrieve_ans.id, customer: customer, skin_test: skin_test});
 
-    if (retrieve_ans) {
-        selected_choice.push({
-            choice: retrieve_ans.id,
-            customer: customer,
-            skin_test: skin_test
-        });
-    };
-
+    }else{
+        ans_data[question_count] = 0;
+    }
     // if the question is last then redirect to final page
     if (question_count === questions.length - 1) {
         nextBtn.classList.add('invisible');
-        
-        SaveAns(selected_choice);
-
-        if(e1_value){
-            //WaterIntake();
-            hydration()
-        } else {
-            console.log("no water content")
-        }
+        SaveTest();
+        SaveAns(ans_data);
+        //WaterIntake();
     } else {
         question_count++;
         show(question_count);
@@ -140,7 +132,7 @@ let show = (count) => {
     question_elm.innerHTML = `Q${count + 1}.${questions[count].name}`;
     let choice_data = questions[count].choices;
 
-    if (questions[count].code == 107) {
+    if (questions[count].question_code == 107) {
         note.classList.remove('d-none');
         note.innerHTML = "Note: As per international standards 1ltr = 4.16 glasses"
         option_table.innerHTML = choice_data.map(choice => `<tr>
@@ -247,45 +239,102 @@ let toggleActive = () => {
     }
 }
 
-let SaveAns = (obj) => {
-    let url = '/quizapp/quizanswers/';
-    let json_params = JSON.stringify(obj);
-    
-    let xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 201) {
-            let resObj = JSON.parse(this.responseText);            
-        }
-    }
-    xmlhttp.open("POST", url, true);
-    xmlhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xmlhttp.send(json_params);
-    
-}
 
-////////////////////////save water information/////////////
-let hydration = () => {
-    let url = '/quizapp/hydration_info/';
-    let params = {
-        customer: customer,
-        weight : e1_value,
-        physical_activity : e2_value,
-        water_intake : e3_value,
-        status : water_content.textContent,
-        skin_test: skin_test
-    };
+let SaveTest = () => {
+    let url = "/quizapp/skin_test/";
+    //let params = {code:test_code, user_name:user_name};
+    let params = {customer:customer};
     let json_params = JSON.stringify(params);
 
     let xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 201) {
             let resObj = JSON.parse(this.responseText);
-            console.log(resObj)
+            sessionStorage.setItem("skinTest_pk", resObj.id);     
         }
     }
     xmlhttp.open("POST", url, true);
     xmlhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xmlhttp.send(json_params);
+}
+
+
+let SaveAns = (obj) => {
+    let url = '/quizapp/quizanswers/';
+    let ans_json = JSON.stringify(obj);
+    let params = {choice:ans_json, customer:customer, skin_test:skin_test};
+    let json_params = JSON.stringify(params);
+    let json_data = JSON.stringify(JSONObject.Orders);
+
+    console.log('ans_json',ans_json)
+    console.log('params',params)
+    console.log('json_params',json_params)
+
+    let obj_test = {
+        name:'ramesh'
+    }
+
+    console.log("JSONObject: ", JSONObject.Orders)
+
+    
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 201) {
+            let resObj = JSON.parse(this.responseText);
+            console.log('resObj', resObj)  
+        }
+    }
+    xmlhttp.open("POST", url, true);
+    xmlhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xmlhttp.send(json_data);
+    
+}
+////////////////////////sae data/////////////
+//let SaveAns = (obj) => {
+let SaveAns100 = (obj) => {
+    let ans_json = JSON.stringify(obj);
+    //let primary_concern = '{{ primary }}';
+    //let skin_concerns = JSON.parse("{{category_choice|escapejs}}");
+    let params = {user_choice:ans_json, user_name:user_name, test_code:test_code};
+    $.ajax({
+        url: '/quizapp/quizanswers/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: params,
+        dataType: 'json',
+        success: (response)=>{
+            if (response) {
+                if(quiz_type ===  'skin'){
+                    //WaterIntake();
+                    location.href = `/quizapp/skin_concerns/${user_name}/${test_code}/`;
+                } else {
+                    location.href = `/quizapp/products/${user_name}/${test_code}/`;
+                }
+            }
+        }
+    })
+}
+
+////////////////////////save water information/////////////
+let WaterIntake = () => {
+    let params = {
+        user_name : user_name,
+        weight : e1_value,
+        physical_activity : e2_value,
+        water_intake : e3_value,
+        status : water_content.textContent,
+        test_code : test_code,
+    };
+
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let responseJsonObj = JSON.parse(this.responseText);
+            questions = responseJsonObj;
+        }
+    }
+    xmlhttp.open("POST", "/quizapp/water_info/", true);
+    xmlhttp.send(params);
 }
 
 </script> {% endblock %}

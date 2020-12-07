@@ -88,7 +88,18 @@ class SkinTest(models.Model):
     #customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL, related_name="skintests",)
 
     def __str__(self):
+        #return self.code
         return str(self.code)
+        
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            try:
+                top = SkinTest.objects.order_by('-code')[0]
+                self.code = top.code + 1
+            except IndexError:
+                self.code = 1
+        super(SkinTest, self).save(*args, **kwargs)
 
 
 class QuizModal(models.Model):
